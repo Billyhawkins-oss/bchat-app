@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B CHAT · Admin</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────  THEME TOKENS  ───────────────────────── */
+:root{
+  --brand:#22C55E; --brand-2:#16A34A; --brand-soft:rgba(34,197,94,.14);
+  --blue:#3B82F6; --cyan:#06B6D4; --amber:#F59E0B; --green:#22C55E;
+  --red:#EF4444; --pink:#EC4899; --violet:#A855F7;
+  --radius:8px; --radius-sm:8px;
+  --shadow:0 1px 2px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.06);
+  --sidebar-w:246px; --topbar-h:64px;
+  --font:'Fira Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --mono:'Fira Code',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+:root[data-theme="dark"]{
+  --bg:#020617; --bg-2:#07111f; --panel:#0F172A; --panel-2:#16243A;
+  --border:#1E293B; --border-2:#334155;
+  --text:#F8FAFC; --text-2:#CBD5E1; --muted:#94A3B8;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+}
+:root[data-theme="light"]{
+  --bg:#F5F6FA; --bg-2:#EEF0F6; --panel:#FFFFFF; --panel-2:#F4F6FB;
+  --border:#E4E7EF; --border-2:#D8DCE8;
+  --text:#0F172A; --text-2:#3E4759; --muted:#64748B;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:var(--font); background:var(--bg); color:var(--text);
+  font-size:14px; line-height:1.55; -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select,textarea{font-family:inherit;font-size:14px}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:8px;border:2px solid var(--bg)}
+::-webkit-scrollbar-track{background:transparent}
+.mono{font-family:var(--mono);font-feature-settings:"tnum"}
+.hidden{display:none!important}
+
+/* ─────────────────────────  APP GRID  ───────────────────────── */
+#app{display:grid;grid-template-columns:var(--sidebar-w) 1fr;grid-template-rows:100vh;}
+
+/* ─── Sidebar ─── */
+.sidebar{
+  background:var(--bg-2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;height:100vh;overflow-y:auto;padding:18px 14px;
+}
+.brand{display:flex;align-items:center;gap:11px;padding:6px 8px 20px;}
+.brand img{width:34px;height:34px;border-radius:9px}
+.brand-name{font-weight:700;font-size:16px;letter-spacing:-.2px}
+.brand-name span{color:var(--brand)}
+.brand-tag{font-size:10.5px;color:var(--muted);font-weight:600;letter-spacing:1.4px;text-transform:uppercase}
+.nav-label{font-size:10.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);padding:14px 10px 6px}
+.nav-item{
+  display:flex;align-items:center;gap:11px;width:100%;padding:9px 11px;border-radius:var(--radius-sm);
+  color:var(--text-2);font-weight:500;font-size:14px;transition:background .16s,color .16s;text-align:left;position:relative;
+}
+.nav-item:hover{background:var(--panel);color:var(--text)}
+.nav-item.active{background:var(--brand-soft);color:var(--brand);font-weight:600}
+.nav-item.active::before{content:"";position:absolute;left:-14px;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--brand);border-radius:0 3px 3px 0}
+.nav-item svg{width:18px;height:18px;flex-shrink:0}
+.nav-item .badge{margin-left:auto;background:var(--panel-2);color:var(--text-2);font-size:11px;font-weight:600;padding:1px 8px;border-radius:20px;font-family:var(--mono)}
+.nav-item.active .badge{background:var(--brand);color:#fff}
+.sidebar-foot{margin-top:auto;padding-top:14px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)}
+.sidebar-foot .who{display:flex;align-items:center;gap:9px;padding:8px 6px}
+.sidebar-foot .who .av{width:30px;height:30px;border-radius:50%;background:var(--brand);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px}
+.sidebar-foot .who b{color:var(--text);font-size:13px;display:block;line-height:1.2}
+.sidebar-foot .who .role-badge{font-size:10px;color:var(--violet);font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+
+/* ─── Main ─── */
+.main{height:100vh;overflow-y:auto;position:relative}
+.topbar{
+  position:sticky;top:0;z-index:20;height:var(--topbar-h);
+  background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:14px;padding:0 24px;
+}
+.page-title{font-size:19px;font-weight:700;letter-spacing:-.3px}
+.page-sub{font-size:12.5px;color:var(--muted);margin-top:1px}
+.search{position:relative;margin-left:8px;flex:0 1 340px}
+.search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--muted)}
+.search input{
+  width:100%;background:var(--panel);border:1px solid var(--border);border-radius:10px;
+  padding:9px 12px 9px 36px;color:var(--text);outline:none;transition:border .15s;
+}
+.search input:focus{border-color:var(--brand)}
+.search kbd{position:absolute;right:9px;top:50%;transform:translateY(-50%);font-family:var(--mono);font-size:11px;background:var(--panel-2);border:1px solid var(--border);border-radius:6px;padding:1px 6px;color:var(--muted)}
+.top-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+.live{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text-2);padding:6px 11px;background:var(--panel);border:1px solid var(--border);border-radius:20px}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 var(--green);animation:pulse 2s infinite}
+.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.5)}70%{box-shadow:0 0 0 7px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+.icon-btn{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:var(--panel);border:1px solid var(--border);color:var(--text-2);transition:.15s}
+.icon-btn:hover{color:var(--text);border-color:var(--border-2);background:var(--panel-2)}
+.icon-btn svg{width:18px;height:18px}
+.icon-btn.spin svg{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.content{padding:22px 24px 60px}
+.view{display:none;animation:fade .25s ease}
+.view.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ─── Operations strip ─── */
+.ops-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.ops-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:13px 14px;min-height:92px}
+.ops-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.ops-head span{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.8px;text-transform:uppercase}
+.ops-head .chip{font-size:10.5px;padding:2px 7px;border-radius:6px}
+.ops-value{font-family:var(--mono);font-size:23px;font-weight:700;line-height:1;color:var(--text)}
+.ops-note{font-size:12px;color:var(--text-2);margin-top:7px}
+.ops-meter{height:7px;background:var(--panel-2);border-radius:999px;overflow:hidden;margin-top:11px}
+.ops-meter i{display:block;height:100%;border-radius:999px;background:var(--brand);width:0;transition:width .5s ease}
+.quick-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.quick-row .btn{padding:7px 10px;font-size:12.5px}
+
+/* ─── KPI cards ─── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.kpi{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:16px 17px;position:relative;overflow:hidden;transition:transform .18s,border-color .18s}
+.kpi:hover{transform:translateY(-2px);border-color:var(--border-2)}
+.kpi .k-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
+.kpi .k-ic{width:34px;height:34px;border-radius:9px;display:grid;place-items:center}
+.kpi .k-ic svg{width:18px;height:18px}
+.kpi .k-label{font-size:12.5px;color:var(--muted);font-weight:500}
+.kpi .k-val{font-size:27px;font-weight:700;font-family:var(--mono);letter-spacing:-1px;line-height:1}
+.kpi .k-delta{font-size:12px;font-weight:600;margin-top:8px;display:inline-flex;align-items:center;gap:4px}
+.k-delta.up{color:var(--green)} .k-delta.down{color:var(--red)} .k-delta.flat{color:var(--muted)}
+.tint-brand{background:var(--brand-soft);color:var(--brand)}
+.tint-green{background:rgba(34,197,94,.14);color:var(--green)}
+.tint-amber{background:rgba(245,158,11,.15);color:var(--amber)}
+.tint-blue{background:rgba(59,130,246,.14);color:var(--blue)}
+.tint-cyan{background:rgba(6,182,212,.14);color:var(--cyan)}
+.tint-pink{background:rgba(236,72,153,.14);color:var(--pink)}
+.tint-violet{background:rgba(168,85,247,.14);color:var(--violet)}
+.tint-red{background:rgba(239,68,68,.14);color:var(--red)}
+
+/* ─── Panels & charts ─── */
+.grid{display:grid;gap:14px}
+.g-2{grid-template-columns:2fr 1fr} .g-3{grid-template-columns:repeat(3,1fr)} .g-11{grid-template-columns:1fr 1fr}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:17px 18px}
+.panel-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.panel-h h3{font-size:14.5px;font-weight:600}
+.panel-h .sub{font-size:12px;color:var(--muted)}
+.panel-h .pill{font-family:var(--mono);font-size:11px;color:var(--text-2);background:var(--panel-2);border:1px solid var(--border);border-radius:20px;padding:3px 10px}
+.chart-wrap{width:100%;margin-top:8px}
+.chart-wrap svg{width:100%;height:auto;display:block;overflow:visible}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;font-size:12.5px;color:var(--text-2)}
+.legend .lg{display:flex;align-items:center;gap:6px}
+.legend .sw{width:10px;height:10px;border-radius:3px}
+.hbar-row{display:grid;grid-template-columns:120px 1fr 48px;align-items:center;gap:10px;margin:9px 0;font-size:13px}
+.hbar-row .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-2)}
+.hbar-track{height:9px;background:var(--panel-2);border-radius:6px;overflow:hidden}
+.hbar-fill{height:100%;border-radius:6px;transition:width .6s cubic-bezier(.22,1,.36,1)}
+.hbar-row .vv{text-align:right;font-family:var(--mono);font-size:12.5px;color:var(--text)}
+
+/* ─── Tables ─── */
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.tb-search{position:relative;flex:0 1 300px}
+.tb-search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--muted)}
+.tb-search input{width:100%;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:8px 12px 8px 34px;color:var(--text);outline:none}
+.tb-search input:focus{border-color:var(--brand)}
+.seg{display:flex;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:3px;gap:2px}
+.seg button{padding:6px 12px;border-radius:7px;font-size:12.5px;font-weight:500;color:var(--muted)}
+.seg button.active{background:var(--brand-soft);color:var(--brand);font-weight:600}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:10px;font-weight:600;font-size:13px;background:var(--panel);border:1px solid var(--border);color:var(--text);transition:.15s}
+.btn:hover{border-color:var(--border-2);background:var(--panel-2)}
+.btn svg{width:15px;height:15px}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.primary:hover{background:var(--brand-2);border-color:var(--brand-2)}
+.btn.danger{color:var(--red);border-color:transparent}
+.btn.danger:hover{background:rgba(239,68,68,.12)}
+.table-wrap{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+thead th{
+  text-align:left;padding:12px 16px;font-size:11.5px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;
+  color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;background:var(--panel);cursor:pointer;user-select:none
+}
+thead th.no-sort{cursor:default}
+thead th .arw{opacity:.4;font-size:10px}
+thead th.sorted .arw{opacity:1;color:var(--brand)}
+tbody td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr{transition:background .12s}
+tbody tr:hover{background:var(--panel-2)}
+tbody tr:last-child td{border-bottom:none}
+.u-cell{display:flex;align-items:center;gap:11px}
+.av{width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0;display:grid;place-items:center;font-weight:700;font-size:13px;color:#fff}
+.av.initials{background:linear-gradient(135deg,var(--brand),var(--violet))}
+.av.admin-badge{box-shadow:0 0 0 2px var(--amber)}
+.u-name b{font-weight:600;display:block;line-height:1.2}
+.u-name span{font-size:12px;color:var(--muted)}
+.status-dot{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text-2)}
+.status-dot i{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.status-dot.on i{background:var(--green);box-shadow:0 0 8px var(--green)}
+.chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:7px;background:var(--panel-2);color:var(--text-2)}
+.badge-type{font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;text-transform:capitalize}
+.bt-text{background:var(--brand-soft);color:var(--brand)}
+.bt-photo{background:rgba(59,130,246,.14);color:var(--blue)}
+.bt-voice{background:rgba(245,158,11,.15);color:var(--amber)}
+.row-act{display:flex;gap:4px;justify-content:flex-end}
+.row-act button{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;color:var(--muted);transition:.14s}
+.row-act button:hover{background:var(--panel);color:var(--text)}
+.row-act button.del:hover{background:rgba(239,68,68,.13);color:var(--red)}
+.row-act svg{width:16px;height:16px}
+.tbl-foot{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--border)}
+.empty{padding:54px 20px;text-align:center;color:var(--muted)}
+.empty svg{width:42px;height:42px;opacity:.4;margin-bottom:10px}
+.skel{display:inline-block;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--panel-2),var(--border),var(--panel-2));background-size:200% 100%;animation:sh 1.3s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+
+/* ─── Messages feed ─── */
+.msg-item{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;padding:13px 16px;border-bottom:1px solid var(--border)}
+.msg-item:last-child{border-bottom:none}
+.msg-item:hover{background:var(--panel-2)}
+.msg-route{font-size:12.5px;color:var(--muted)}
+.msg-route b{color:var(--text);font-weight:600}
+.msg-route .arr{margin:0 6px;color:var(--brand)}
+.msg-text{margin-top:3px;font-size:13.5px;color:var(--text-2);word-break:break-word}
+.msg-meta{display:flex;flex-direction:column;align-items:flex-end;gap:6px;font-size:11.5px;color:var(--muted);white-space:nowrap}
+
+/* ─── Conversation view ─── */
+.conversation-view{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-top:14px}
+.conversation-header{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);background:var(--bg-2)}
+.conversation-header h3{font-size:14px;font-weight:600}
+.conversation-body{max-height:400px;overflow-y:auto;padding:8px 0}
+.conversation-msg{display:flex;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);font-size:13px}
+.conversation-msg:last-child{border-bottom:none}
+.conversation-msg:hover{background:var(--panel-2)}
+.conversation-msg .msg-sender{font-weight:600;color:var(--brand);min-width:100px}
+.conversation-msg .msg-text{color:var(--text-2);flex:1;word-break:break-word}
+.conversation-msg .msg-time{color:var(--muted);font-size:11px;white-space:nowrap;font-family:var(--mono)}
+.conversation-empty{padding:40px;text-align:center;color:var(--muted)}
+
+/* ─── Announcements ─── */
+.ann-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column}
+.ann-card img{width:100%;height:140px;object-fit:cover;background:var(--panel-2)}
+.ann-body{padding:15px 16px;flex:1;display:flex;flex-direction:column}
+.ann-body h4{font-size:15px;font-weight:700;margin-bottom:5px}
+.ann-body p{font-size:13px;color:var(--text-2);flex:1}
+.ann-foot{display:flex;align-items:center;justify-content:space-between;margin-top:12px;font-size:12px;color:var(--muted)}
+
+/* ─── Forms ─── */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12.5px;font-weight:600;color:var(--text-2);margin-bottom:6px}
+.field input,.field textarea,.field select{
+  width:100%;background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);outline:none;transition:border .15s
+}
+.field input:focus,.field textarea:focus{border-color:var(--brand)}
+.field textarea{resize:vertical;min-height:88px;line-height:1.5}
+
+/* ─── Status grid ─── */
+.st-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.st-card{border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);aspect-ratio:9/14;position:relative;background:var(--panel-2)}
+.st-card img{width:100%;height:100%;object-fit:cover}
+.st-card .st-txt{position:absolute;inset:0;display:grid;place-items:center;padding:14px;text-align:center;font-weight:600;color:#fff;background:linear-gradient(135deg,var(--brand),var(--violet))}
+.st-card .st-info{position:absolute;bottom:0;left:0;right:0;padding:10px 12px;background:linear-gradient(transparent,rgba(0,0,0,.75));color:#fff;font-size:12px;display:flex;align-items:center;gap:7px}
+
+/* ─── Settings ─── */
+.set-row{display:flex;align-items:center;justify-content:space-between;padding:15px 0;border-bottom:1px solid var(--border)}
+.set-row:last-child{border-bottom:none}
+.set-row .lbl b{display:block;font-weight:600;font-size:14px}
+.set-row .lbl span{font-size:12.5px;color:var(--muted)}
+.switch{width:44px;height:25px;border-radius:20px;background:var(--border-2);position:relative;transition:.2s;flex-shrink:0}
+.switch.on{background:var(--brand)}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:19px;height:19px;border-radius:50%;background:#fff;transition:.2s}
+.switch.on::after{left:22px}
+.warn-banner{display:flex;gap:12px;align-items:flex-start;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.35);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;font-size:13px;color:var(--text-2)}
+.warn-banner svg{width:20px;height:20px;color:var(--amber);flex-shrink:0;margin-top:1px}
+.warn-banner b{color:var(--text)}
+.kv{font-family:var(--mono);font-size:12.5px;color:var(--text-2)}
+.risk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:10px}
+.risk-card{border:1px solid var(--border);border-radius:var(--radius);padding:12px;background:var(--bg-2)}
+.risk-card b{display:block;font-size:13.5px;margin-bottom:4px}
+.risk-card span{display:block;font-size:12.5px;color:var(--muted);line-height:1.45}
+.risk-card.ok{border-color:rgba(34,197,94,.35)}
+.risk-card.warn{border-color:rgba(245,158,11,.45)}
+.risk-card.danger{border-color:rgba(239,68,68,.42)}
+
+/* ─── Database stats ─── */
+.db-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+.db-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center}
+.db-card .db-icon{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;margin:0 auto 10px}
+.db-card .db-icon svg{width:22px;height:22px}
+.db-card .db-val{font-size:24px;font-weight:700;font-family:var(--mono);letter-spacing:-1px}
+.db-card .db-label{font-size:12px;color:var(--muted);margin-top:4px}
+.db-card .db-sub{font-size:11px;color:var(--text-2);margin-top:6px}
+.db-bar{height:6px;background:var(--panel-2);border-radius:999px;overflow:hidden;margin-top:10px}
+.db-bar i{display:block;height:100%;border-radius:999px;transition:width .6s ease}
+
+/* ─── Modal / toast / login ─── */
+.overlay{position:fixed;inset:0;background:rgba(6,6,10,.62);backdrop-filter:blur(4px);z-index:100;display:grid;place-items:center;padding:20px;animation:fade .2s}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);width:100%;max-width:460px;overflow:hidden;animation:pop .22s cubic-bezier(.22,1,.36,1)}
+.modal.wide{max-width:600px}
+@keyframes pop{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:none}}
+.modal-h{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--border)}
+.modal-h h3{font-size:16px;font-weight:700}
+.modal-b{padding:20px;max-height:min(70vh,560px);overflow-y:auto}
+.modal-f{display:flex;gap:10px;justify-content:flex-end;padding:16px 20px;border-top:1px solid var(--border)}
+.close-x{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;color:var(--muted)}
+.close-x:hover{background:var(--panel-2);color:var(--text)}
+.toast-wrap{position:fixed;bottom:22px;right:22px;z-index:200;display:flex;flex-direction:column;gap:10px}
+.toast{display:flex;align-items:center;gap:11px;background:var(--panel);border:1px solid var(--border);border-left:3px solid var(--brand);border-radius:12px;padding:13px 16px;box-shadow:var(--shadow);min-width:260px;max-width:360px;font-size:13.5px;animation:slideIn .3s cubic-bezier(.22,1,.36,1)}
+.toast.ok{border-left-color:var(--green)} .toast.err{border-left-color:var(--red)} .toast.warn{border-left-color:var(--amber)}
+.toast svg{width:18px;height:18px;flex-shrink:0}
+@keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+
+/* ─── Login ─── */
+.dv-user-detail dl{display:grid;grid-template-columns:120px 1fr;gap:9px 14px;font-size:13.5px}
+.dv-user-detail dt{color:var(--muted);font-weight:500}
+.dv-user-detail dd{color:var(--text);word-break:break-word}
+
+@media(max-width:1080px){.kpi-grid,.ops-strip,.db-grid{grid-template-columns:repeat(2,1fr)}.g-2,.g-3,.g-11,.risk-grid{grid-template-columns:1fr}}
+@media(max-width:860px){
+  #app{grid-template-columns:1fr}
+  .sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sidebar-w);z-index:60;transform:translateX(-100%);transition:transform .25s}
+  .sidebar.open{transform:none}
+  .menu-toggle{display:grid!important}
+  .search{display:none}
+  .topbar{padding:0 14px}
+  .content{padding:16px 14px 48px}
+  .top-actions{gap:6px}
+  .live{display:none}
+  .page-title{font-size:17px}
+}
+@media(max-width:560px){
+  .kpi-grid,.ops-strip,.db-grid{grid-template-columns:1fr}
+  .toolbar{align-items:stretch}
+  .tb-search,.toolbar .btn{flex:1 1 100%;margin-left:0!important}
+  .seg{width:100%;overflow-x:auto}
+  .seg button{flex:1;min-width:max-content}
+  .msg-item{grid-template-columns:auto 1fr;position:relative}
+  .msg-meta{grid-column:2;align-items:flex-start;flex-direction:row;flex-wrap:wrap}
+  .toast-wrap{left:14px;right:14px;bottom:14px}
+  .toast{min-width:0;max-width:none}
+}
+.menu-toggle{display:grid}
+@media(min-width:861px){
+  #app.sidebar-collapsed{grid-template-columns:1fr}
+  #app.sidebar-collapsed .sidebar{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ APP ═══════════════════ -->
+<div id="app" class="hidden">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <img src="logo.svg" alt="" onerror="this.style.display='none'">
+      <div>
+        <div class="brand-name">B <span>CHAT</span></div>
+        <div class="brand-tag">Admin Console</div>
+      </div>
+    </div>
+    <nav>
+      <div class="nav-label">Analytics</div>
+      <button class="nav-item active" data-view="overview">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+        Overview
+      </button>
+      <div class="nav-label">Management</div>
+      <button class="nav-item" data-view="users">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Users <span class="badge" id="nav-users">–</span>
+      </button>
+      <button class="nav-item" data-view="messages">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Messages <span class="badge" id="nav-msgs">–</span>
+      </button>
+      <button class="nav-item" data-view="conversations">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><circle cx="12" cy="10" r="1"/><circle cx="8" cy="10" r="1"/><circle cx="16" cy="10" r="1"/></svg>
+        Conversations
+      </button>
+      <button class="nav-item" data-view="announcements">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+        Announcements <span class="badge" id="nav-ads">–</span>
+      </button>
+      <button class="nav-item" data-view="statuses">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-dasharray="4 3"/><circle cx="12" cy="12" r="3.5"/></svg>
+        Statuses <span class="badge" id="nav-st">–</span>
+      </button>
+      <button class="nav-item" data-view="moderation">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Moderation <span class="badge" id="nav-mod">–</span>
+      </button>
+      <button class="nav-item" data-view="audit">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Audit Log
+      </button>
+      <div class="nav-label">System</div>
+      <button class="nav-item" data-view="database">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        Database
+      </button>
+      <button class="nav-item" data-view="settings">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </button>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="who">
+        <div class="av" id="me-av">A</div>
+        <div><b id="me-name">admin</b><span class="role-badge">Admin</span><span>Console access</span></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <header class="topbar">
+      <button class="icon-btn menu-toggle" id="menu-toggle" aria-label="Menu"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg></button>
+      <div>
+        <div class="page-title" id="pg-title">Overview</div>
+        <div class="page-sub" id="pg-sub">Real-time snapshot of your community</div>
+      </div>
+      <div class="search">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="global-search" placeholder="Search users…" autocomplete="off">
+        <kbd>/</kbd>
+      </div>
+      <div class="top-actions">
+        <div class="live" id="live-badge"><span class="dot"></span><span id="live-txt">Live</span></div>
+        <button class="icon-btn" id="btn-refresh" title="Refresh data"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></button>
+        <button class="icon-btn" id="btn-theme" title="Toggle theme"><svg id="theme-ic" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+        <button class="icon-btn" id="btn-logout" title="Sign out"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg></button>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- ══ OVERVIEW ══ -->
+      <section class="view active" id="view-overview">
+        <div id="analytics-warn"></div>
+        <div class="ops-strip" id="ops-strip"></div>
+        <div class="grid g-2" style="margin-bottom:14px">
+          <div class="panel">
+            <div class="panel-h"><div><h3>Downloads per 3 min</h3><div class="sub">PWA install events from users</div></div><span class="pill" id="install-rate-total">–</span></div>
+            <div class="chart-wrap" id="chart-installs-3m"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-h"><div><h3>Usage per 3 min</h3><div class="sub">Installed app vs web app heartbeats</div></div><span class="pill" id="usage-rate-total">–</span></div>
+            <div class="chart-wrap" id="chart-usage-3m"></div>
+            <div class="legend" id="legend-usage-3m"></div>
+          </div>
+        </div>
+        <div class="panel" style="margin-bottom:14px">
+          <div class="panel-h"><div><h3>Most Active Now</h3><div class="sub">Users with the most activity in the latest 3-minute window</div></div><span class="pill" id="active-window-label">–</span></div>
+          <div id="chart-top-3m" style="margin-top:6px"></div>
+        </div>
+        <div class="kpi-grid" id="kpi-grid"></div>
+        <div class="grid g-2" style="margin-bottom:14px">
+          <div class="panel">
+            <div class="panel-h"><div><h3>User Growth</h3><div class="sub">Cumulative registered accounts</div></div><span class="pill" id="growth-total">–</span></div>
+            <div class="chart-wrap" id="chart-growth"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-h"><h3>Presence</h3></div>
+            <div class="chart-wrap" id="chart-presence"></div>
+            <div class="legend" id="legend-presence"></div>
+          </div>
+        </div>
+        <div class="grid g-2" style="margin-bottom:14px">
+          <div class="panel">
+            <div class="panel-h"><div><h3>Activity — last 14 days</h3><div class="sub">Messages sent & new signups per day</div></div></div>
+            <div class="chart-wrap" id="chart-activity"></div>
+            <div class="legend" id="legend-activity"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-h"><h3>Message Types</h3></div>
+            <div class="chart-wrap" id="chart-types"></div>
+            <div class="legend" id="legend-types"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-h"><div><h3>Most Active Members</h3><div class="sub">By messages sent (last 30 days)</div></div></div>
+          <div id="chart-top" style="margin-top:6px"></div>
+        </div>
+        <div class="panel" style="margin-top:14px">
+          <div class="panel-h"><div><h3>Admin Health</h3><div class="sub">Configuration and activity checks</div></div><span class="pill" id="health-score">–</span></div>
+          <div class="risk-grid" id="risk-grid"></div>
+        </div>
+      </section>
+
+      <!-- ══ USERS ══ -->
+      <section class="view" id="view-users">
+        <div class="toolbar">
+          <div class="tb-search"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input id="users-search" placeholder="Search name, username or code…"></div>
+          <div class="seg" id="users-filter">
+            <button class="active" data-f="all">All</button>
+            <button data-f="online">Online</button>
+            <button data-f="offline">Offline</button>
+          </div>
+          <button class="btn" id="users-export" style="margin-left:auto"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Export CSV</button>
+        </div>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table id="users-table">
+              <thead><tr>
+                <th data-sort="display_name">Member <span class="arw">↕</span></th>
+                <th data-sort="code" class="mono">Code <span class="arw">↕</span></th>
+                <th data-sort="is_online">Status <span class="arw">↕</span></th>
+                <th data-sort="msg_count">Messages <span class="arw">↕</span></th>
+                <th data-sort="last_seen">Last seen <span class="arw">↕</span></th>
+                <th data-sort="created_at" class="sorted">Joined <span class="arw">↓</span></th>
+                <th class="no-sort" style="text-align:right">Actions</th>
+              </tr></thead>
+              <tbody id="users-body"></tbody>
+            </table>
+          </div>
+          <div class="tbl-foot"><span id="users-count">–</span><span>Click a row to inspect, manage roles, and view activity</span></div>
+        </div>
+      </section>
+
+      <!-- ══ MESSAGES ══ -->
+      <section class="view" id="view-messages">
+        <div class="toolbar">
+          <div class="tb-search"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input id="msgs-search" placeholder="Search message text or participants…"></div>
+          <div class="seg" id="msgs-filter">
+            <button class="active" data-f="all">All</button>
+            <button data-f="text">Text</button>
+            <button data-f="photo">Photo</button>
+            <button data-f="voice">Voice</button>
+          </div>
+          <button class="btn" id="msgs-export" style="margin-left:auto"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Export CSV</button>
+        </div>
+        <div class="warn-banner"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg><div>Moderation view. Showing the <b>200 most recent</b> messages. Click a message to view full details. Deleting is permanent and removes the message for both participants.</div></div>
+        <div class="table-wrap"><div id="msgs-body"></div><div class="tbl-foot"><span id="msgs-count">–</span></div></div>
+      </section>
+
+      <!-- ══ CONVERSATIONS ══ -->
+      <section class="view" id="view-conversations">
+        <div class="panel" style="margin-bottom:14px">
+          <div class="panel-h"><h3>Look up conversation</h3></div>
+          <div style="display:flex;gap:12px;align-items:flex-end;margin-top:12px;flex-wrap:wrap">
+            <div class="field" style="flex:1;min-width:160px;margin-bottom:0">
+              <label>User A</label>
+              <input id="conv-user-a" list="user-list-a" placeholder="Username">
+              <datalist id="user-list-a"></datalist>
+            </div>
+            <div class="field" style="flex:1;min-width:160px;margin-bottom:0">
+              <label>User B</label>
+              <input id="conv-user-b" list="user-list-b" placeholder="Username">
+              <datalist id="user-list-b"></datalist>
+            </div>
+            <button class="btn primary" id="btn-lookup-conv" style="margin-bottom:14px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>Search</button>
+          </div>
+        </div>
+        <div id="conv-results"></div>
+      </section>
+
+      <!-- ══ ANNOUNCEMENTS ══ -->
+      <section class="view" id="view-announcements">
+        <div class="grid g-2" style="align-items:start">
+          <div>
+            <div class="panel-h" style="margin-bottom:12px"><div><h3 style="font-size:16px">Broadcast board</h3><div class="sub">Pinned announcements everyone sees in the app</div></div></div>
+            <div class="grid g-11" id="ann-list"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-h"><h3>New announcement</h3></div>
+            <form id="ann-form" style="margin-top:12px">
+              <div class="field"><label for="ann-title">Title</label><input id="ann-title" maxlength="80" placeholder="e.g. New feature: voice notes" required></div>
+              <div class="field"><label for="ann-text">Message</label><textarea id="ann-text" maxlength="500" placeholder="What do you want to tell your community?" required></textarea></div>
+              <div class="field"><label for="ann-photo">Image URL (optional)</label><input id="ann-photo" placeholder="https://…"></div>
+              <button class="btn primary" type="submit" style="width:100%;justify-content:center;padding:11px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>Publish to everyone</button>
+            </form>
+            <div style="height:1px;background:var(--border);margin:18px 0"></div>
+            <div class="panel-h"><h3>Send notification</h3></div>
+            <form id="notify-form" style="margin-top:12px">
+              <div class="field"><label for="notify-title">Title</label><input id="notify-title" maxlength="60" placeholder="e.g. Maintenance tonight" required></div>
+              <div class="field"><label for="notify-text">Message</label><textarea id="notify-text" maxlength="240" placeholder="Short message every user will see as a toast" required></textarea></div>
+              <button class="btn primary" type="submit" style="width:100%;justify-content:center;padding:11px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>Notify everyone</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ STATUSES ══ -->
+      <section class="view" id="view-statuses">
+        <div class="panel-h" style="margin-bottom:14px"><div><h3 style="font-size:16px">Active statuses</h3><div class="sub">Stories posted in the last 24 hours</div></div></div>
+        <div class="st-grid" id="st-grid"></div>
+      </section>
+
+      <!-- ══ DATABASE ══ -->
+      <section class="view" id="view-database">
+        <div class="panel-h" style="margin-bottom:14px"><div><h3 style="font-size:16px">Supabase Project Status</h3><div class="sub">Real-time database and storage metrics</div></div><span class="pill" id="db-refresh-time">–</span></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+        <button class="btn" id="db-export-all"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Export All Data (JSON)</button>
+        <button class="btn" id="db-import-users"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Import Users (JSON)</button>
+      </div>
+        <div class="db-grid" id="db-grid"></div>
+        <div class="grid g-2" style="margin-bottom:14px">
+          <div class="panel">
+            <div class="panel-h"><h3>Table Sizes</h3></div>
+            <div id="db-table-sizes" style="margin-top:8px"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-h"><h3>Storage</h3></div>
+            <div id="db-storage" style="margin-top:8px"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-h"><h3>Database Actions</h3></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+            <button class="btn danger" id="db-clear-messages"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>Clear all messages</button>
+            <button class="btn danger" id="db-clear-statuses"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>Clear all statuses</button>
+            <button class="btn danger" id="db-clear-ads"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>Clear all announcements</button>
+            <button class="btn danger" id="db-clear-analytics"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>Clear analytics</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ MODERATION ══ -->
+      <section class="view" id="view-moderation">
+        <div class="panel-h" style="margin-bottom:14px"><div><h3 style="font-size:16px">Message Moderation</h3><div class="sub">Flagged messages requiring review</div></div></div>
+        <div id="mod-body"><div class="empty"><svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><div>No flagged messages</div></div></div>
+      </section>
+
+      <!-- ══ AUDIT LOG ══ -->
+      <section class="view" id="view-audit">
+        <div class="panel-h" style="margin-bottom:14px"><div><h3 style="font-size:16px">Admin Audit Log</h3><div class="sub">Track administrative actions</div></div><button class="btn" id="audit-clear" style="margin-left:auto"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>Clear Log</button></div>
+        <div id="audit-body"><div class="empty"><svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><div>No actions logged yet</div></div></div>
+      </section>
+
+      <!-- ══ SETTINGS ══ -->
+      <section class="view" id="view-settings">
+        <div id="admin-warn"></div>
+        <div class="grid g-11" style="align-items:start">
+          <div class="panel">
+            <div class="panel-h"><h3>Preferences</h3></div>
+            <div class="set-row"><div class="lbl"><b>Auto-refresh</b><span>Reload live data automatically</span></div><div class="switch" id="sw-auto"></div></div>
+            <div class="set-row"><div class="lbl"><b>Refresh interval</b><span>How often to pull new data</span></div>
+              <select id="sel-interval" style="background:var(--bg-2);border:1px solid var(--border);border-radius:9px;padding:8px 10px;color:var(--text)">
+                <option value="15000">15 seconds</option><option value="30000" selected>30 seconds</option><option value="60000">1 minute</option><option value="300000">5 minutes</option>
+              </select>
+            </div>
+            <div class="set-row"><div class="lbl"><b>Appearance</b><span>Light or dark interface</span></div>
+              <div class="seg"><button id="th-dark" class="active">Dark</button><button id="th-light">Light</button></div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-h"><h3>Connection</h3></div>
+            <div class="set-row"><div class="lbl"><b>Supabase project</b><span class="kv" id="set-url">–</span></div><span class="chip" id="set-conn">checking…</span></div>
+            <div class="set-row"><div class="lbl"><b>Signed in as</b><span id="set-me" class="kv">–</span></div></div>
+            <div class="set-row"><div class="lbl"><b>Role</b><span id="set-role" class="kv">admin</span></div></div>
+            <div class="set-row"><div class="lbl"><b>Last synced</b><span id="set-synced" class="kv">–</span></div><button class="btn" id="set-refresh">Refresh now</button></div>
+            <div class="set-row"><div class="lbl"><b>Sign out</b><span>End this admin session</span></div><button class="btn danger" id="set-logout">Sign out</button></div>
+          </div>
+        </div>
+        <div class="panel" style="margin-top:14px">
+          <div class="panel-h"><h3>Security notes</h3></div>
+          <p style="font-size:13px;color:var(--text-2);line-height:1.7;margin-top:8px">
+            This console uses B CHAT's public Supabase key — the same one shipped in the app — so what it can read and delete is governed entirely by your database's <b>Row Level Security</b> policies. For production, restrict destructive access with RLS and consider moving admin writes (delete user, delete message) behind a server function that uses the service-role key. If a delete fails silently, RLS is blocking it — that's expected and safe.
+          </p>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<div class="toast-wrap" id="toasts"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+/* ════════════════════════════════════════════════════════
+   B CHAT · Admin Console v3 — Full Supabase management
+   ════════════════════════════════════════════════════════ */
+
+// ── Config ──
+const SUPABASE_URL = 'https://kvcrlmfltbpnnjvrghtw.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_VIzSz8dD8xQMrrn1RuQgYw_W8Sn1rRE';
+const ADMIN_USERNAMES = ['admin'];
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+// ── State ──
+let ME = null;
+let ME_USER_RECORD = null;
+let DATA = { users:[], messages:[], recent:[], m30:[], ads:[], statuses:[], events:[], counts:{}, analyticsError:null };
+let autoTimer = null;
+const state = {
+  usersSort:{key:'created_at',dir:-1}, usersFilter:'all', usersQuery:'',
+  msgsFilter:'all', msgsQuery:'',
+  modFilter:'all',
+  auto: localStorage.getItem('bchat_admin_auto')!=='off',
+  interval: parseInt(localStorage.getItem('bchat_admin_interval')||'30000',10),
+};
+
+/* ─────────── Password verify ─────────── */
+const _b64ToBuf = b64 => Uint8Array.from(atob(b64), c=>c.charCodeAt(0));
+const _bufToB64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
+async function _deriveHash(pw, salt, iter){
+  const km = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:iter,hash:'SHA-256'}, km, 256);
+  return _bufToB64(bits);
+}
+async function verifyPassword(pw, stored){
+  if(!stored) return false;
+  if(!stored.startsWith('pbkdf2$')) return stored === pw;
+  const [,iter,salt,hash] = stored.split('$');
+  return (await _deriveHash(pw, _b64ToBuf(salt), parseInt(iter,10))) === hash;
+}
+
+/* ─────────── Helpers ─────────── */
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&','<':'<','>':'>','"':'"',"'":'&#39;'}[c]));
+const fmt = n => (n??0).toLocaleString('en-US');
+const initials = s => (s||'?').trim().slice(0,2).toUpperCase();
+function dayKey(d){ const x=new Date(d); return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0'); }
+function relTime(ts){
+  if(!ts) return '—';
+  const d=new Date(ts), s=(Date.now()-d.getTime())/1000;
+  if(s<0) return 'just now';
+  if(s<60) return Math.floor(s)+'s ago';
+  if(s<3600) return Math.floor(s/60)+'m ago';
+  if(s<86400) return Math.floor(s/3600)+'h ago';
+  if(s<604800) return Math.floor(s/86400)+'d ago';
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:s>31536000?'numeric':undefined});
+}
+function shortDate(ts){ return ts? new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—'; }
+function avatarHTML(u,cls=''){
+  return u && u.avatar
+    ? `<img class="av ${cls}" src="${esc(u.avatar)}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'av initials ${cls}',textContent:'${esc(initials(u.display_name||u.username))}'}))">`
+    : `<div class="av initials ${cls}">${esc(initials(u&&(u.display_name||u.username)))}</div>`;
+}
+function toast(msg, type='ok'){
+  const icons={ok:'M20 6 9 17l-5-5',err:'M18 6 6 18M6 6l12 12',warn:'M12 9v4M12 17h.01',info:'M12 16v-4M12 8h.01'};
+  const el=document.createElement('div'); el.className='toast '+type;
+  el.innerHTML=`<svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="${icons[type]||icons.ok}"/></svg><span>${esc(msg)}</span>`;
+  $('#toasts').appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transform='translateX(40px)';el.style.transition='.3s';setTimeout(()=>el.remove(),300);},3400);
+}
+
+/* ═════════════════ SVG CHARTS ═════════════════ */
+const C = {brand:'#22C55E',blue:'#3B82F6',cyan:'#06B6D4',amber:'#F59E0B',green:'#22C55E',red:'#EF4444',violet:'#A855F7',pink:'#EC4899'};
+const axisColor = () => getComputedStyle(document.documentElement).getPropertyValue('--border').trim();
+const muted = () => getComputedStyle(document.documentElement).getPropertyValue('--muted').trim();
+
+function areaChart(el, series, color){
+  const W=600,H=250,pad={l:40,r:14,t:14,b:26};
+  const max=Math.max(1,...series.map(p=>p.v));
+  const iw=W-pad.l-pad.r, ih=H-pad.t-pad.b;
+  const X=i=> pad.l + (series.length<2?iw/2:(i/(series.length-1))*iw);
+  const Y=v=> pad.t + ih - (v/max)*ih;
+  const line=series.map((p,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(p.v).toFixed(1)).join(' ');
+  const area=line+` L ${X(series.length-1).toFixed(1)} ${pad.t+ih} L ${X(0).toFixed(1)} ${pad.t+ih} Z`;
+  let grid='';
+  for(let g=0;g<=4;g++){ const y=pad.t+ih-(g/4)*ih, val=Math.round((g/4)*max);
+    grid+=`<line x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}" stroke="${axisColor()}" stroke-width="1"/><text x="${pad.l-8}" y="${y+4}" text-anchor="end" font-size="11" fill="${muted()}" font-family="Fira Code">${val}</text>`; }
+  const step=Math.ceil(series.length/6);
+  let xl=''; series.forEach((p,i)=>{ if(i%step===0||i===series.length-1) xl+=`<text x="${X(i)}" y="${H-8}" text-anchor="middle" font-size="10.5" fill="${muted()}" font-family="Fira Code">${p.l}</text>`; });
+  const gid='ag'+Math.random().toString(36).slice(2,7);
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".35"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>
+    ${grid}<path d="${area}" fill="url(#${gid})"/><path d="${line}" fill="none" stroke="${color}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+    ${series.map((p,i)=>`<circle cx="${X(i)}" cy="${Y(p.v)}" r="3" fill="${color}"><title>${p.l}: ${p.v}</title></circle>`).join('')}${xl}</svg>`;
+}
+
+function groupedBars(el, cats, seriesDefs){
+  const W=600,H=250,pad={l:40,r:14,t:14,b:26};
+  const iw=W-pad.l-pad.r, ih=H-pad.t-pad.b;
+  const max=Math.max(1,...cats.flatMap(c=>seriesDefs.map(s=>c[s.key]||0)));
+  const gw=iw/cats.length, bw=Math.min(18,(gw*0.62)/seriesDefs.length);
+  let grid='';
+  for(let g=0;g<=4;g++){ const y=pad.t+ih-(g/4)*ih; grid+=`<line x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}" stroke="${axisColor()}" stroke-width="1"/><text x="${pad.l-8}" y="${y+4}" text-anchor="end" font-size="11" fill="${muted()}" font-family="Fira Code">${Math.round((g/4)*max)}</text>`; }
+  let bars='',xl='';
+  const step=Math.ceil(cats.length/7);
+  cats.forEach((c,i)=>{
+    const cx=pad.l+gw*i+gw/2;
+    const totalW=bw*seriesDefs.length+ (seriesDefs.length-1)*3;
+    seriesDefs.forEach((s,si)=>{
+      const v=c[s.key]||0, h=(v/max)*ih, x=cx-totalW/2+si*(bw+3), y=pad.t+ih-h;
+      bars+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(0,h).toFixed(1)}" rx="3" fill="${s.color}"><title>${c.l} · ${s.name}: ${v}</title></rect>`;
+    });
+    if(i%step===0||i===cats.length-1) xl+=`<text x="${cx}" y="${H-8}" text-anchor="middle" font-size="10.5" fill="${muted()}" font-family="Fira Code">${c.l}</text>`;
+  });
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}">${grid}${bars}${xl}</svg>`;
+}
+
+function donut(el, segs){
+  const total=segs.reduce((a,s)=>a+s.v,0)||1;
+  const R=70,r=44,cx=90,cy=90; let a=-Math.PI/2, paths='';
+  segs.forEach(s=>{
+    const frac=s.v/total, a2=a+frac*Math.PI*2;
+    const big=frac>0.5?1:0;
+    const x1=cx+R*Math.cos(a),y1=cy+R*Math.sin(a),x2=cx+R*Math.cos(a2),y2=cy+R*Math.sin(a2);
+    const xi1=cx+r*Math.cos(a2),yi1=cy+r*Math.sin(a2),xi2=cx+r*Math.cos(a),yi2=cy+r*Math.sin(a);
+    if(frac>0) paths+=`<path d="M${x1} ${y1} A${R} ${R} 0 ${big} 1 ${x2} ${y2} L${xi1} ${yi1} A${r} ${r} 0 ${big} 0 ${xi2} ${yi2} Z" fill="${s.color}"><title>${s.l}: ${s.v}</title></path>`;
+    a=a2;
+  });
+  el.innerHTML=`<svg viewBox="0 0 180 180" style="max-width:200px;margin:6px auto 0;display:block">${paths}
+    <text x="90" y="86" text-anchor="middle" font-size="26" font-weight="700" fill="var(--text)" font-family="Fira Code">${fmt(total)}</text>
+    <text x="90" y="104" text-anchor="middle" font-size="11" fill="${muted()}">total</text></svg>`;
+}
+function legend(el, segs){ el.innerHTML=segs.map(s=>`<div class="lg"><span class="sw" style="background:${s.color}"></span>${esc(s.l)} <b class="mono" style="color:var(--text)">${fmt(s.v)}</b></div>`).join(''); }
+
+function hbars(el, rows){
+  const max=Math.max(1,...rows.map(r=>r.v));
+  const colors=[C.brand,C.blue,C.violet,C.cyan,C.pink,C.amber,C.green,C.red];
+  el.innerHTML = rows.length ? rows.map((r,i)=>`
+    <div class="hbar-row">
+      <div class="nm">${esc(r.l)}</div>
+      <div class="hbar-track"><div class="hbar-fill" style="width:${(r.v/max*100).toFixed(1)}%;background:${colors[i%colors.length]}"></div></div>
+      <div class="vv">${fmt(r.v)}</div>
+    </div>`).join('') : `<div class="empty">No activity yet</div>`;
+}
+
+function threeMinuteBuckets(minutes=60){
+  const step=3*60*1000, now=Date.now(), start=Math.floor((now-minutes*60*1000)/step)*step;
+  const buckets=[];
+  for(let t=start;t<=now;t+=step){
+    const d=new Date(t);
+    buckets.push({start:t,end:t+step,key:String(t),l:d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}), installs:0, installed:0, web:0});
+  }
+  return buckets;
+}
+
+function bucketEvents(events, minutes=60){
+  const buckets=threeMinuteBuckets(minutes), byKey=Object.fromEntries(buckets.map(b=>[b.key,b]));
+  events.forEach(ev=>{
+    const t=new Date(ev.created_at).getTime();
+    if(!Number.isFinite(t)) return;
+    const key=String(Math.floor(t/(3*60*1000))*(3*60*1000));
+    const b=byKey[key]; if(!b) return;
+    if(ev.event_type==='app_installed') b.installs++;
+    if(ev.event_type==='usage_heartbeat'){
+      if(ev.platform==='installed_app') b.installed++;
+      else b.web++;
+    }
+  });
+  return buckets;
+}
+
+/* ═════════════════ DATA LOADING ═════════════════ */
+async function loadAll(){
+  setLive('loading');
+  try{
+    const cut30 = new Date(Date.now()-30*864e5).toISOString();
+    const cut24 = new Date(Date.now()-864e5).toISOString();
+    const cutAnalytics = new Date(Date.now()-2*3600e3).toISOString();
+    const [uRes, mCnt, recentRes, m30Res, adsRes, stRes, evRes] = await Promise.all([
+      sb.from('users').select('id,username,display_name,code,avatar,bio,is_online,last_seen,created_at,role').order('created_at',{ascending:false}),
+      sb.from('messages').select('*',{count:'exact',head:true}),
+      sb.from('messages').select('id,sender,receiver,text,type,created_at').order('created_at',{ascending:false}).limit(200),
+      sb.from('messages').select('sender,type,created_at').gte('created_at',cut30).order('created_at',{ascending:false}).limit(8000),
+      sb.from('ads').select('*').order('created_at',{ascending:false}),
+      sb.from('statuses').select('*').gte('created_at',cut24).order('created_at',{ascending:false}),
+      sb.from('analytics_events').select('event_type,username,platform,session_id,created_at').gte('created_at',cutAnalytics).order('created_at',{ascending:false}).limit(6000),
+    ]);
+    if(uRes.error) throw uRes.error;
+    DATA.users = uRes.data||[];
+    DATA.recent = recentRes.data||[];
+    DATA.m30 = m30Res.data||[];
+    DATA.ads = adsRes.data||[];
+    DATA.statuses = stRes.data||[];
+    DATA.events = evRes.error ? [] : (evRes.data||[]);
+    DATA.analyticsError = evRes.error || null;
+    DATA.counts.messages = mCnt.count ?? DATA.recent.length;
+
+    const mc={}; DATA.m30.forEach(m=>{ mc[m.sender]=(mc[m.sender]||0)+1; });
+    DATA.users.forEach(u=>{ u.msg_count = mc[u.username]||0; });
+
+    DATA.syncedAt = new Date();
+    setLive('ok');
+    renderEverything();
+  }catch(e){
+    console.error(e); setLive('err');
+    toast('Failed to load data: '+(e.message||e), 'err');
+  }
+}
+
+function renderEverything(){
+  renderBadges(); renderOpsSnapshot(); renderRealtimeAnalytics(); renderKPIs(); renderCharts(); renderRiskGrid();
+  renderUsers(); renderMessages(); renderAnnouncements(); renderStatuses(); renderSettingsInfo(); populateUserDatalists();
+  renderDatabaseStats(); renderModeration(); renderAuditLog();
+}
+
+function renderBadges(){
+  $('#nav-users').textContent = fmt(DATA.users.length);
+  $('#nav-msgs').textContent = fmt(DATA.counts.messages);
+  $('#nav-ads').textContent = fmt(DATA.ads.length);
+  $('#nav-st').textContent = fmt(DATA.statuses.length);
+  $('#nav-mod').textContent = fmt(flaggedMessages.length);
+}
+
+/* ═════════════════ OVERVIEW ═════════════════ */
+function renderRealtimeAnalytics(){
+  const warn=$('#analytics-warn');
+  if(DATA.analyticsError){
+    warn.innerHTML=`<div class="warn-banner"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg><div><b>Analytics table not ready.</b> Create a Supabase table named <span class="kv">analytics_events</span> with columns <span class="kv">event_type, username, platform, session_id, meta, created_at</span> to enable real-time graphs.</div></div>`;
+  }else warn.innerHTML='';
+
+  const buckets=bucketEvents(DATA.events,60);
+  groupedBars($('#chart-installs-3m'), buckets, [{key:'installs',name:'Downloads',color:C.green}]);
+  $('#install-rate-total').textContent=fmt(buckets.reduce((a,b)=>a+b.installs,0))+' installs';
+
+  groupedBars($('#chart-usage-3m'), buckets, [{key:'installed',name:'Installed app',color:C.brand},{key:'web',name:'Web app',color:C.blue}]);
+  const installed=buckets.reduce((a,b)=>a+b.installed,0), web=buckets.reduce((a,b)=>a+b.web,0);
+  $('#usage-rate-total').textContent=fmt(installed+web)+' heartbeats';
+  legend($('#legend-usage-3m'),[{l:'Installed app',v:installed,color:C.brand},{l:'Web app',v:web,color:C.blue}]);
+
+  const latestStart=Math.floor(Date.now()/(3*60*1000))*(3*60*1000), latestEnd=latestStart+3*60*1000;
+  const names={}; DATA.users.forEach(u=>{names[u.username]=u.display_name||u.username;});
+  const counts={};
+  DATA.events.filter(e=>e.created_at && new Date(e.created_at).getTime()>=latestStart && new Date(e.created_at).getTime()<latestEnd)
+    .forEach(e=>{ const who=e.username||'anonymous'; counts[who]=(counts[who]||0)+1; });
+  DATA.recent.filter(m=>m.created_at && new Date(m.created_at).getTime()>=latestStart && new Date(m.created_at).getTime()<latestEnd)
+    .forEach(m=>{ const who=m.sender||'unknown'; counts[who]=(counts[who]||0)+1; });
+  const rows=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([u,v])=>({l:names[u]||u,v}));
+  $('#active-window-label').textContent=new Date(latestStart).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+' window';
+  hbars($('#chart-top-3m'), rows);
+}
+
+function renderOpsSnapshot(){
+  const users=DATA.users;
+  const now=Date.now();
+  const online=users.filter(u=>u.is_online).length;
+  const active24=new Set(DATA.m30.filter(m=>new Date(m.created_at).getTime()>=now-864e5).map(m=>m.sender)).size;
+  const active7=new Set(DATA.m30.filter(m=>new Date(m.created_at).getTime()>=now-7*864e5).map(m=>m.sender)).size;
+  const msgs24=DATA.m30.filter(m=>new Date(m.created_at).getTime()>=now-864e5).length;
+  const onlineRate=users.length?Math.round(online/users.length*100):0;
+  const engage=users.length?Math.round(active7/users.length*100):0;
+  const msgVelocity=active24?Math.round(msgs24/active24):0;
+  const securityScore=ADMIN_USERNAMES.length?100:35;
+  const cards=[
+    {label:'Live presence',value:onlineRate+'%',note:`${fmt(online)} online of ${fmt(users.length)} members`,meter:onlineRate,tone:onlineRate>30?'ok':'info'},
+    {label:'7-day engagement',value:engage+'%',note:`${fmt(active7)} active senders this week`,meter:engage,tone:engage>45?'ok':engage>15?'info':'warn'},
+    {label:'Message velocity',value:fmt(msgVelocity),note:`avg messages per active sender today`,meter:Math.min(100,msgVelocity*12),tone:msgVelocity>0?'ok':'warn'},
+    {label:'Admin lock',value:securityScore+'%',note:ADMIN_USERNAMES.length?'Allowlist is configured':'Set ADMIN_USERNAMES before production',meter:securityScore,tone:ADMIN_USERNAMES.length?'ok':'warn'},
+  ];
+  const colorFor=t=>t==='warn'?C.amber:t==='danger'?C.red:t==='info'?C.blue:C.green;
+  $('#ops-strip').innerHTML = cards.map(c=>`
+    <div class="ops-card">
+      <div class="ops-head"><span>${esc(c.label)}</span><span class="chip" style="color:${colorFor(c.tone)}">${c.tone}</span></div>
+      <div class="ops-value">${esc(c.value)}</div>
+      <div class="ops-note">${esc(c.note)}</div>
+      <div class="ops-meter"><i style="width:${Math.max(3,Math.min(100,c.meter))}%;background:${colorFor(c.tone)}"></i></div>
+    </div>`).join('');
+}
+
+function renderKPIs(){
+  const now=Date.now(), today=dayKey(now);
+  const weekAgo=now-7*864e5;
+  const users=DATA.users;
+  const online=users.filter(u=>u.is_online).length;
+  const newToday=users.filter(u=>u.created_at && dayKey(u.created_at)===today).length;
+  const newWeek=users.filter(u=>u.created_at && new Date(u.created_at).getTime()>=weekAgo).length;
+  const activeWeek=new Set(DATA.m30.filter(m=>new Date(m.created_at).getTime()>=weekAgo).map(m=>m.sender)).size;
+  const msgsToday=DATA.m30.filter(m=>dayKey(m.created_at)===today).length;
+  const engage = users.length? Math.round(activeWeek/users.length*100):0;
+
+  const cards=[
+    {label:'Total Users',   val:fmt(users.length), ic:'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z', tint:'brand', delta:newWeek?`+${newWeek} this week`:'—', dir:newWeek?'up':'flat'},
+    {label:'Online Now',    val:fmt(online), ic:'M12 2a10 10 0 1 0 10 10', tint:'green', delta:`${users.length?Math.round(online/users.length*100):0}% of users`, dir:'flat'},
+    {label:'New Today',     val:fmt(newToday), ic:'M12 5v14M5 12h14', tint:'cyan', delta:'signups today', dir:newToday?'up':'flat'},
+    {label:'New This Week',   val:fmt(newWeek), ic:'M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z', tint:'violet', delta:'last 7 days', dir:'flat'},
+    {label:'Total Messages',  val:fmt(DATA.counts.messages), ic:'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z', tint:'blue', delta:'all time', dir:'flat'},
+    {label:'Messages Today',  val:fmt(msgsToday), ic:'M12 8v4l3 3M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z', tint:'amber', delta:'sent today', dir:msgsToday?'up':'flat'},
+    {label:'Active Users (7d)', val:fmt(activeWeek), ic:'M22 12h-4l-3 9L9 3l-3 9H2', tint:'pink', delta:`${engage}% engagement`, dir:'flat'},
+    {label:'Announcements',   val:fmt(DATA.ads.length), ic:'M3 11l18-5v12L3 14v-3zM11.6 16.8a3 3 0 1 1-5.8-1.6', tint:'red', delta:'live on board', dir:'flat'},
+  ];
+  $('#kpi-grid').innerHTML = cards.map(c=>`
+    <div class="kpi">
+      <div class="k-top"><span class="k-label">${c.label}</span><span class="k-ic tint-${c.tint}"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="${c.ic}"/></svg></span></div>
+      <div class="k-val">${c.val}</div>
+      <div class="k-delta ${c.dir}">${c.dir==='up'?'▲ ':c.dir==='down'?'▼ ':''}${c.delta}</div>
+    </div>`).join('');
+}
+
+function lastNDays(n){ const arr=[]; for(let i=n-1;i>=0;i--){ const d=new Date(Date.now()-i*864e5); arr.push({key:dayKey(d), l:d.toLocaleDateString('en-US',{month:'numeric',day:'numeric'})}); } return arr; }
+
+function renderCharts(){
+  const days=lastNDays(30);
+  const byDay={}; DATA.users.forEach(u=>{ if(u.created_at){const k=dayKey(u.created_at); byDay[k]=(byDay[k]||0)+1;} });
+  const before = DATA.users.filter(u=>u.created_at && new Date(u.created_at).getTime()<new Date(days[0].key).getTime()).length;
+  let cum=before;
+  const growth=days.map(d=>{ cum+=byDay[d.key]||0; return {l:d.l, v:cum}; });
+  areaChart($('#chart-growth'), growth, C.brand);
+  $('#growth-total').textContent = fmt(DATA.users.length)+' total';
+
+  const online=DATA.users.filter(u=>u.is_online).length;
+  const pres=[{l:'Online',v:online,color:C.green},{l:'Offline',v:DATA.users.length-online,color:muted()||'#888'}];
+  donut($('#chart-presence'),pres); legend($('#legend-presence'),pres);
+
+  const d14=lastNDays(14);
+  const msgByDay={}, signByDay={};
+  DATA.m30.forEach(m=>{const k=dayKey(m.created_at); msgByDay[k]=(msgByDay[k]||0)+1;});
+  DATA.users.forEach(u=>{ if(u.created_at){const k=dayKey(u.created_at); signByDay[k]=(signByDay[k]||0)+1;} });
+  const cats=d14.map(d=>({l:d.l, msgs:msgByDay[d.key]||0, signups:signByDay[d.key]||0}));
+  groupedBars($('#chart-activity'), cats, [{key:'msgs',name:'Messages',color:C.brand},{key:'signups',name:'Signups',color:C.cyan}]);
+  legend($('#legend-activity'),[{l:'Messages',v:DATA.m30.filter(m=>new Date(m.created_at).getTime()>Date.now()-14*864e5).length,color:C.brand},{l:'Signups',v:cats.reduce((a,c)=>a+c.signups,0),color:C.cyan}]);
+
+  const t={text:0,photo:0,voice:0,other:0};
+  DATA.m30.forEach(m=>{ if(m.type in t) t[m.type]++; else t.other++; });
+  const types=[{l:'Text',v:t.text,color:C.brand},{l:'Photo',v:t.photo,color:C.blue},{l:'Voice',v:t.voice,color:C.amber}];
+  if(t.other) types.push({l:'Other',v:t.other,color:C.violet});
+  donut($('#chart-types'),types.filter(x=>x.v>0).length?types:[{l:'None',v:0,color:muted()}]); legend($('#legend-types'),types);
+
+  const top=[...DATA.users].filter(u=>u.msg_count>0).sort((a,b)=>b.msg_count-a.msg_count).slice(0,8)
+    .map(u=>({l:u.display_name||u.username, v:u.msg_count}));
+  hbars($('#chart-top'), top);
+}
+
+function renderRiskGrid(){
+  const now=Date.now();
+  const staleOnline=DATA.users.filter(u=>u.is_online && u.last_seen && new Date(u.last_seen).getTime()<now-15*60e3).length;
+  const emptyProfiles=DATA.users.filter(u=>!u.avatar && !u.bio).length;
+  const mediaMsgs=DATA.m30.filter(m=>m.type==='photo'||m.type==='voice').length;
+  const mediaPct=DATA.m30.length?Math.round(mediaMsgs/DATA.m30.length*100):0;
+  const withCode=DATA.users.filter(u=>u.code).length;
+  const codeState=!DATA.users.length?'warn':(withCode===DATA.users.length?'ok':(withCode>=DATA.users.length*0.9?'warn':'danger'));
+  const cards=[
+    {title:'Access control',state:ADMIN_USERNAMES.length?'ok':'danger',text:ADMIN_USERNAMES.length ? `${ADMIN_USERNAMES.length} administrator username${ADMIN_USERNAMES.length===1?'':'s'} allowed.` : 'Allowlist is empty, so every registered user can sign in.'},
+    {title:'Presence hygiene',state:staleOnline?'warn':'ok',text:staleOnline ? `${staleOnline} online member${staleOnline===1?' has':'s have'} a stale last_seen timestamp.` : 'Online members have recent heartbeat data.'},
+    {title:'Profile quality',state:emptyProfiles>Math.max(3,DATA.users.length*.25)?'warn':'ok',text:`${fmt(emptyProfiles)} member${emptyProfiles===1?'':'s'} missing both avatar and bio.`},
+    {title:'Media load',state:mediaPct>55?'warn':'ok',text:`${mediaPct}% of recent 30-day messages are photo or voice items.`},
+    {title:'Code coverage',state:codeState,text:`${fmt(withCode)} of ${fmt(DATA.users.length)} member${DATA.users.length===1?'':'s'} have a 4-digit chat code.`},
+    {title:'Broadcasts',state:DATA.ads.length?'ok':'warn',text:DATA.ads.length ? `${fmt(DATA.ads.length)} active announcement${DATA.ads.length===1?'':'s'} on the board.` : 'No pinned announcements are currently published.'},
+    {title:'Data freshness',state:DATA.syncedAt?'ok':'warn',text:DATA.syncedAt ? `Last sync completed at ${DATA.syncedAt.toLocaleTimeString()}.` : 'No successful sync has completed yet.'},
+  ];
+  const score=Math.round(cards.reduce((n,c)=>n+(c.state==='ok'?1:(c.state==='warn'?0.55:0.15)),0)/cards.length*100);
+  $('#health-score').textContent=score+'% healthy';
+  $('#risk-grid').innerHTML=cards.map(c=>`<div class="risk-card ${c.state}"><b>${esc(c.title)}</b><span>${esc(c.text)}</span></div>`).join('');
+}
+
+/* ═════════════════ USERS ═════════════════ */
+function renderUsers(){
+  const q=state.usersQuery.toLowerCase();
+  let rows=DATA.users.filter(u=>{
+    if(state.usersFilter==='online' && !u.is_online) return false;
+    if(state.usersFilter==='offline' && u.is_online) return false;
+    if(!q) return true;
+    return (u.display_name||'').toLowerCase().includes(q)||(u.username||'').toLowerCase().includes(q)||(u.code||'').toLowerCase().includes(q);
+  });
+  const {key,dir}=state.usersSort;
+  rows.sort((a,b)=>{ let x=a[key],y=b[key];
+    if(key==='msg_count'||key==='is_online'){x=+x||0;y=+y||0;}
+    else if(key==='created_at'||key==='last_seen'){x=x?new Date(x).getTime():0;y=y?new Date(y).getTime():0;}
+    else {x=(x||'').toString().toLowerCase();y=(y||'').toString().toLowerCase();}
+    return x<y?-dir:x>y?dir:0;
+  });
+  $('#users-body').innerHTML = rows.length ? rows.map(u=>`
+    <tr data-u="${esc(u.username)}">
+      <td><div class="u-cell">${avatarHTML(u,u.role==='admin'?'admin-badge':'')}<div class="u-name"><b>${esc(u.display_name||u.username)}</b><span>@${esc(u.username)}${u.role==='admin'?' · <span style="color:var(--amber)">Admin</span>':''}</span></div></div></td>
+      <td><span class="chip">${esc(u.code||'—')}</span></td>
+      <td><span class="status-dot ${u.is_online?'on':''}"><i></i>${u.is_online?'Online':'Offline'}</span></td>
+      <td class="mono">${fmt(u.msg_count)}</td>
+      <td style="color:var(--text-2)">${esc(u.is_online?'now':relTime(u.last_seen))}</td>
+      <td style="color:var(--text-2)">${esc(shortDate(u.created_at))}</td>
+      <td><div class="row-act">
+        <button class="view-u" title="Inspect"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        <button class="del del-u" title="Delete user permanently"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
+      </div></td>
+    </tr>`).join('') : `<tr><td colspan="7"><div class="empty"><svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><div>No members match your filters</div></div></td></tr>`;
+  $('#users-count').textContent = `${fmt(rows.length)} of ${fmt(DATA.users.length)} members`;
+
+  // Add checkboxes for bulk actions
+  if(!$('#select-all-users') && $$('#users-body tr[data-u]').length > 0){
+    const thead = $('#users-table thead tr');
+    const th = document.createElement('th');
+    th.innerHTML = '<input type="checkbox" id="select-all-users" title="Select all">';
+    th.style.cssText = 'width:40px;text-align:center';
+    thead.appendChild(th);
+    
+    $('#users-count').insertAdjacentHTML('afterend','<button class="btn danger" id="bulk-delete-selected" style="display:none;margin-left:10px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>Delete Selected</button>');
+    
+    $$('#users-body tr[data-u]').forEach(tr=>{
+      const td = tr.insertCell(-1);
+      td.style.cssText = 'text-align:center';
+      td.innerHTML = `<input type="checkbox" class="user-select" value="${esc(tr.dataset.u)}">`;
+    });
+    
+    $('#select-all-users').addEventListener('change',e=>{
+      $$('.user-select').forEach(cb=>{cb.checked=e.target.checked;});
+      updateBulkDeleteBtn();
+    });
+    
+    $$('.user-select').forEach(cb=>cb.addEventListener('change',updateBulkDeleteBtn));
+    
+    $('#bulk-delete-selected').addEventListener('click',()=>{
+      const selected = [...document.querySelectorAll('.user-select:checked')].map(cb=>cb.value);
+      if(selected.length) bulkDeleteUsers(selected);
+    });
+  }
+
+  function updateBulkDeleteBtn(){
+    const selected = document.querySelectorAll('.user-select:checked').length;
+    const btn = $('#bulk-delete-selected');
+    if(btn) btn.style.display = selected ? 'inline-flex' : 'none';
+  }
+
+  $$('#users-body tr[data-u]').forEach(tr=>{
+    const u=DATA.users.find(x=>x.username===tr.dataset.u);
+    if(tr.querySelector('.view-u')) return;
+    tr.querySelector('.view-u').onclick=e=>{e.stopPropagation();openUser(u);};
+    tr.onclick=()=>openUser(u);
+    tr.querySelector('.del-u').onclick=e=>{e.stopPropagation();confirmDeleteUser(u);};
+  });
+}
+
+function openUser(u){
+  const recent=DATA.recent.filter(m=>m.sender===u.username||m.receiver===u.username).slice(0,6);
+  const isAdminUser = u.role === 'admin';
+  const isSelf = ME?.username === u.username;
+  const canModRole = !isSelf;
+
+  modal({
+    title:'Member details', wide:true,
+    body:`<div style="display:flex;gap:16px;align-items:center;margin-bottom:18px">
+        ${avatarHTML(u).replace('class="av','style="width:56px;height:56px;font-size:20px" class="av')}
+        <div><div style="font-size:18px;font-weight:700">${esc(u.display_name||u.username)} ${isAdminUser?'<span style="color:var(--amber);font-size:13px;font-weight:600">👑 Admin</span>':''}</div>
+        <div style="color:var(--muted);font-size:13px">@${esc(u.username)} · <span class="status-dot ${u.is_online?'on':''}"><i></i>${u.is_online?'Online':'Offline'}</span></div></div></div>
+      <div class="dv-user-detail"><dl>
+        <dt>User code</dt><dd><span class="chip">${esc(u.code||'—')}</span></dd>
+        <dt>Bio</dt><dd>${esc(u.bio||'—')}</dd>
+        <dt>Messages sent (30d)</dt><dd class="mono">${fmt(u.msg_count)}</dd>
+        <dt>Last seen</dt><dd>${esc(u.is_online?'Online now':relTime(u.last_seen))}</dd>
+        <dt>Joined</dt><dd>${esc(u.created_at?new Date(u.created_at).toLocaleString():'—')}</dd>
+        <dt>Account role</dt><dd>${isAdminUser?'<span style="color:var(--amber);font-weight:600">Administrator</span>':'<span style="color:var(--text-2)">User</span>'}</dd>
+        <dt>Internal ID</dt><dd class="mono" style="font-size:12px;color:var(--muted)">${esc(u.id??'—')}</dd>
+      </dl></div>
+      ${canModRole ? `<div style="margin:14px 0 8px;display:flex;gap:10px">
+        <button class="btn ${isAdminUser?'danger':'primary'}" id="role-toggle-btn" style="font-size:12.5px;padding:7px 12px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:14px;height:14px"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>${isAdminUser?'Revoke admin role':'Grant admin role'}</button>
+      </div>`:''}
+      <h4 style="font-size:13px;margin:18px 0 8px;color:var(--text-2)">Recent activity</h4>
+      ${recent.length? recent.map(m=>`<div style="font-size:12.5px;color:var(--text-2);padding:7px 0;border-bottom:1px solid var(--border)"><b style="color:var(--text)">${esc(m.sender)}</b> → ${esc(m.receiver)} · <span style="color:var(--muted)">${relTime(m.created_at)}</span><br>${esc((m.text||'['+m.type+']').slice(0,90))}</div>`).join('') : '<div style="color:var(--muted);font-size:13px">No recent messages in latest 200.</div>'}`,
+    actions:[
+      {label:'Copy code',cls:'btn',onClick:()=>{navigator.clipboard.writeText(u.code||'');toast('Code copied');}},
+      {label:'View conversation',cls:'btn',onClick:()=>{closeModal();openConversation(u.username);}},
+      {label:'Delete user + messages',cls:'btn danger',onClick:()=>{closeModal();confirmDeleteUser(u,true);}},
+      {label:'Close',cls:'btn primary',onClick:closeModal},
+    ]
+  });
+
+  const roleBtn = document.getElementById('role-toggle-btn');
+  if(roleBtn){
+    roleBtn.onclick = async () => {
+      roleBtn.disabled = true;
+      const newRole = isAdminUser ? null : 'admin';
+      const { error } = await sb.from('users').update({ role: newRole }).eq('username', u.username);
+      roleBtn.disabled = false;
+      if(error){ toast('Failed to update role: '+error.message, 'err'); return; }
+      u.role = newRole;
+      toast(`@${u.username} is now ${newRole === 'admin' ? 'an administrator' : 'a regular user'}`, 'ok');
+      openUser(u);
+      renderUsers();
+    };
+  }
+}
+
+function confirmDeleteUser(u, alsoMessages){
+  const msg = alsoMessages
+    ? `This permanently removes <b>${esc(u.display_name||u.username)}</b> from the users table <b>AND deletes all their sent messages</b>. This cannot be undone.`
+    : `This permanently removes <b>${esc(u.display_name||u.username)}</b> from the users table. Their sent messages are not automatically removed. This cannot be undone.`;
+  confirmModal(`Delete @${u.username}?`, msg, async()=>{
+    // Delete user's messages first if requested
+    if(alsoMessages){
+      const { error: msgErr } = await sb.from('messages').delete().eq('sender', u.username);
+      if(msgErr) toast('Failed to delete messages: '+msgErr.message, 'warn');
+    }
+    // Delete user
+    const {error}=await sb.from('users').delete().eq('username',u.username);
+    if(error){ toast('Delete failed: '+error.message,'err'); return; }
+    DATA.users=DATA.users.filter(x=>x.username!==u.username);
+    renderBadges(); renderOpsSnapshot(); renderUsers(); renderKPIs(); renderCharts(); renderRiskGrid();
+    toast('User deleted'+(alsoMessages?' with messages':''),'ok');
+  });
+}
+
+/* ═════════════════ MESSAGES ═════════════════ */
+function renderMessages(){
+  const q=state.msgsQuery.toLowerCase();
+  let rows=DATA.recent.filter(m=>{
+    if(state.msgsFilter!=='all' && m.type!==state.msgsFilter) return false;
+    if(!q) return true;
+    return (m.text||'').toLowerCase().includes(q)||(m.sender||'').toLowerCase().includes(q)||(m.receiver||'').toLowerCase().includes(q);
+  });
+  const label={text:'Text',photo:'Photo',voice:'Voice'};
+  $('#msgs-body').innerHTML = rows.length ? rows.map(m=>{
+    const preview = m.type==='photo'?'📷 Photo message':m.type==='voice'?'🎙 Voice note':(m.text||'—');
+    return `<div class="msg-item" data-id="${esc(m.id)}" data-sender="${esc(m.sender)}" data-receiver="${esc(m.receiver)}" data-text="${esc(m.text||'')}" data-type="${esc(m.type||'text')}" data-time="${esc(m.created_at)}">
+      <div>${avatarHTML(DATA.users.find(u=>u.username===m.sender),'').replace('width:34px','')}</div>
+      <div><div class="msg-route"><b>${esc(m.sender)}</b><span class="arr">→</span><b>${esc(m.receiver)}</b></div><div class="msg-text">${esc(preview.slice(0,180))}</div></div>
+      <div class="msg-meta"><span class="badge-type bt-${m.type||'text'}">${label[m.type]||m.type||'text'}</span><span>${relTime(m.created_at)}</span>
+        <div style="display:flex;gap:4px">
+          <button class="view-msg-detail" title="View details" style="color:var(--muted)"><svg style="width:15px;height:15px" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          <button class="row-act-del" title="Delete message" style="color:var(--muted)"><svg style="width:15px;height:15px" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
+        </div></div>
+    </div>`;
+  }).join('') : `<div class="empty"><svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><div>No messages match your filters</div></div>`;
+  $('#msgs-count').textContent=`Showing ${fmt(rows.length)} of latest ${fmt(DATA.recent.length)} messages`;
+  $$('#msgs-body .msg-item').forEach(el=>{
+    el.querySelector('.row-act-del').onclick=()=>{
+      const id=el.dataset.id, m=DATA.recent.find(x=>String(x.id)===id);
+      confirmModal('Delete this message?',`From <b>${esc(m.sender)}</b> to <b>${esc(m.receiver)}</b>. This removes it for both participants and cannot be undone.`,async()=>{
+        const {error}=await sb.from('messages').delete().eq('id',m.id);
+        if(error){toast('Delete failed: '+error.message,'err');return;}
+        DATA.recent=DATA.recent.filter(x=>x.id!==m.id);
+        DATA.counts.messages=Math.max(0,(DATA.counts.messages||1)-1);
+        renderBadges();renderOpsSnapshot();renderMessages();renderKPIs();renderCharts();renderRiskGrid();toast('Message deleted','ok');
+      });
+    };
+    el.querySelector('.view-msg-detail').onclick=()=>{
+      const id=el.dataset.id, m=DATA.recent.find(x=>String(x.id)===id);
+      if(!m) return;
+      modal({
+        title:'Message details', wide:true,
+        body:`<div class="dv-user-detail"><dl>
+          <dt>Message ID</dt><dd class="mono" style="font-size:12px">${esc(m.id)}</dd>
+          <dt>Sender</dt><dd><b>${esc(m.sender)}</b></dd>
+          <dt>Receiver</dt><dd><b>${esc(m.receiver)}</b></dd>
+          <dt>Type</dt><dd><span class="badge-type bt-${m.type||'text'}">${m.type||'text'}</span></dd>
+          <dt>Time sent</dt><dd>${new Date(m.created_at).toLocaleString()}</dd>
+          <dt>Content</dt><dd style="white-space:pre-wrap;word-break:break-word;background:var(--bg-2);padding:12px;border-radius:8px;font-size:13.5px">${esc(m.text||'['+m.type+' message]')}</dd>
+        </dl></div>`,
+        actions:[{label:'Close',cls:'btn primary',onClick:closeModal}]
+      });
+    };
+  });
+}
+
+/* ═════════════════ MODERATION ═════════════════ */
+let flaggedMessages = [];
+let modFilter = 'all';
+
+function renderModeration(){
+  const q = '';
+  let rows = flaggedMessages.filter(m=>{
+    if(modFilter!=='all' && m.flagReason!==modFilter) return false;
+    return true;
+  });
+  const modBody = $('#mod-body');
+  if(!modBody) return;
+  modBody.innerHTML = rows.length ? rows.map(m=>`
+    <div class="msg-item" data-id="${esc(m.id)}">
+      <div>${avatarHTML(DATA.users.find(u=>u.username===m.sender),'').replace('width:34px','')}</div>
+      <div><div class="msg-route"><b>${esc(m.sender)}</b><span class="arr">→</span><b>${esc(m.receiver)}</b></div><div class="msg-text">${esc((m.text||'['+m.type+']').slice(0,180))}</div><div style="margin-top:4px"><span class="badge-type" style="background:rgba(239,68,68,.14);color:var(--red)">${esc(m.flagReason||'flagged')}</span></div></div>
+      <div class="msg-meta"><span>${relTime(m.created_at)}</span>
+        <div style="display:flex;gap:4px">
+          <button class="view-msg-detail" title="View details" style="color:var(--muted)"><svg style="width:15px;height:15px" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          <button class="row-act-del" title="Delete message" style="color:var(--red)"><svg style="width:15px;height:15px" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
+          <button class="dismiss-flag" title="Dismiss flag" style="color:var(--green)"><svg style="width:15px;height:15px" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></button>
+        </div></div>
+    </div>`).join('') : `<div class="empty"><svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><div>No flagged messages</div></div>`;
+  
+  $$('#mod-body .msg-item').forEach(el=>{
+    const id = el.dataset.id;
+    el.querySelector('.row-act-del').onclick = ()=>{
+      confirmModal('Delete flagged message?','This removes it permanently.',async()=>{
+        const {error} = await sb.from('messages').delete().eq('id',id);
+        if(error){toast('Delete failed: '+error.message,'err');return;}
+        flaggedMessages = flaggedMessages.filter(x=>x.id!==id);
+        addAuditLog('delete_flagged_message',{messageId:id});
+        renderModeration(); renderBadges(); renderKPIs();
+        toast('Flagged message deleted','ok');
+      });
+    };
+    el.querySelector('.view-msg-detail').onclick = ()=>{
+      const m = flaggedMessages.find(x=>String(x.id)===id);
+      if(!m) return;
+      modal({title:'Flagged message',wide:true,body:`<div class="dv-user-detail"><dl>
+        <dt>Message ID</dt><dd class="mono" style="font-size:12px">${esc(m.id)}</dd>
+        <dt>Sender</dt><dd><b>${esc(m.sender)}</b></dd>
+        <dt>Receiver</dt><dd><b>${esc(m.receiver)}</b></dd>
+        <dt>Flag reason</dt><dd><span class="badge-type" style="background:rgba(239,68,68,.14);color:var(--red)">${esc(m.flagReason||'flagged')}</span></dd>
+        <dt>Time sent</dt><dd>${new Date(m.created_at).toLocaleString()}</dd>
+        <dt>Content</dt><dd style="white-space:pre-wrap;word-break:break-word;background:var(--bg-2);padding:12px;border-radius:8px;font-size:13.5px">${esc(m.text||'['+m.type+' message]')}</dd>
+      </dl></div>`,actions:[{label:'Delete',cls:'btn danger',onClick:()=>{closeModal();el.querySelector('.row-act-del').click();}},{label:'Close',cls:'btn primary',onClick:closeModal}]});
+    };
+    el.querySelector('.dismiss-flag').onclick = ()=>{
+      flaggedMessages = flaggedMessages.filter(x=>x.id!==id);
+      addAuditLog('dismiss_flag',{messageId:id});
+      renderModeration();
+      toast('Flag dismissed','ok');
+    };
+  });
+}
+
+function loadFlaggedMessages(){
+  flaggedMessages = [];
+}
+
+/* ═════════════════ CONVERSATIONS ═════════════════ */
+function populateUserDatalists(){
+  const usernames = DATA.users.map(u=>u.username);
+  $('#user-list-a').innerHTML = usernames.map(u=>`<option value="${esc(u)}">`).join('');
+  $('#user-list-b').innerHTML = usernames.map(u=>`<option value="${esc(u)}">`).join('');
+}
+
+async function openConversation(username){
+  go('conversations');
+  $('#conv-user-a').value = ME?.username || '';
+  $('#conv-user-b').value = username;
+  await doConversationLookup();
+}
+
+async function doConversationLookup(){
+  const userA = $('#conv-user-a').value.trim();
+  const userB = $('#conv-user-b').value.trim();
+  const results = $('#conv-results');
+  if(!userA || !userB){ results.innerHTML = '<div class="conversation-empty">Enter two usernames to see their conversation</div>'; return; }
+  if(userA === userB){ results.innerHTML = '<div class="conversation-empty">A conversation needs two different users</div>'; return; }
+  results.innerHTML = '<div class="conversation-empty">Loading conversation...</div>';
+  try{
+    const {data, error} = await sb.from('messages')
+      .select('id,sender,receiver,text,type,created_at')
+      .or(`and(sender.eq.${userA},receiver.eq.${userB}),and(sender.eq.${userB},receiver.eq.${userA})`)
+      .order('created_at',{ascending:true}).limit(500);
+    if(error) throw error;
+    const msgs = data || [];
+    const getName = (u) => { const user = DATA.users.find(x => x.username === u); return user ? (user.display_name || user.username) : u; };
+    if(msgs.length === 0){
+      results.innerHTML = `<div class="conversation-view"><div class="conversation-header"><h3>💬 ${esc(getName(userA))} ↔ ${esc(getName(userB))}</h3><span class="pill">0 messages</span></div><div class="conversation-empty">No messages between these users</div></div>`;
+      return;
+    }
+    results.innerHTML = `<div class="conversation-view">
+      <div class="conversation-header"><h3>💬 ${esc(getName(userA))} ↔ ${esc(getName(userB))}</h3><span class="pill">${fmt(msgs.length)} messages</span><span style="margin-left:auto;font-size:12px;color:var(--muted)">${esc(msgs[0].sender)} to ${esc(msgs[msgs.length-1].sender)}</span></div>
+      <div class="conversation-body">${msgs.map(m => {
+        const preview = m.type==='photo'?'📷 Photo':m.type==='voice'?'🎤 Voice':(m.text||'');
+        const isFromUserA = m.sender === userA;
+        return `<div class="conversation-msg" style="border-left:3px solid ${isFromUserA?'var(--brand)':'var(--violet)'}"><div class="msg-sender">${esc(isFromUserA ? getName(userA) : getName(userB))}</div><div class="msg-text">${esc(preview.slice(0,200))}</div><div class="msg-time">${new Date(m.created_at).toLocaleString()}</div></div>`;
+      }).join('')}</div></div>`;
+  } catch(e){ results.innerHTML = `<div class="conversation-empty">Error: ${esc(e.message||e)}</div>`; }
+}
+
+$('#btn-lookup-conv').addEventListener('click', doConversationLookup);
+$('#conv-user-a').addEventListener('keydown', e => { if(e.key==='Enter') doConversationLookup(); });
+$('#conv-user-b').addEventListener('keydown', e => { if(e.key==='Enter') doConversationLookup(); });
+
+/* ═════════════════ ANNOUNCEMENTS ═════════════════ */
+function renderAnnouncements(){
+  const list=$('#ann-list');
+  list.innerHTML = DATA.ads.length ? DATA.ads.map(a=>`
+    <div class="ann-card">
+      ${a.photo?`<img src="${esc(a.photo)}" alt="" onerror="this.style.display='none'">`:''}
+      <div class="ann-body"><h4>${esc(a.title||'Untitled')}</h4><p>${esc(a.text||'')}</p>
+        <div class="ann-foot"><span>${esc(a.username||'admin')} · ${relTime(a.created_at)}</span>
+        <button class="btn danger del-ad" data-id="${esc(a.id)}" style="padding:5px 10px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>Delete</button></div>
+      </div>
+    </div>`).join('') : `<div class="empty" style="grid-column:1/-1"><svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M3 11l18-5v12L3 14v-3z"/></svg><div>No announcements yet — publish your first one →</div></div>`;
+  $$('.del-ad').forEach(b=>b.onclick=()=>{
+    const a=DATA.ads.find(x=>String(x.id)===b.dataset.id);
+    confirmModal('Delete announcement?',`"<b>${esc(a.title)}</b>" will be removed from everyone's board.`,async()=>{
+      const {error}=await sb.from('ads').delete().eq('id',a.id);
+      if(error){toast('Delete failed: '+error.message,'err');return;}
+      DATA.ads=DATA.ads.filter(x=>x.id!==a.id); renderBadges();renderOpsSnapshot();renderAnnouncements();renderKPIs();renderRiskGrid();toast('Announcement removed','ok');
+    });
+  });
+}
+$('#ann-form').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const title=$('#ann-title').value.trim(), text=$('#ann-text').value.trim(), photo=$('#ann-photo').value.trim();
+  if(!title||!text) return;
+  const btn=e.target.querySelector('button'); btn.disabled=true;
+  const payload={ username:(ME?.username||'admin'), title, text }; if(photo) payload.photo=photo;
+  const {data,error}=await sb.from('ads').insert(payload).select().single();
+  btn.disabled=false;
+  if(error){ toast('Publish failed: '+error.message,'err'); return; }
+  DATA.ads.unshift(data||payload); e.target.reset(); renderBadges(); renderOpsSnapshot(); renderAnnouncements(); renderKPIs(); renderRiskGrid();
+  toast('Announcement published to everyone','ok');
+});
+$('#notify-form').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const title=$('#notify-title').value.trim(), text=$('#notify-text').value.trim();
+  if(!title||!text) return;
+  const btn=e.target.querySelector('button'); btn.disabled=true;
+  const payload={ username:(ME?.username||'admin'), title:'Notification: '+title, text };
+  const {data,error}=await sb.from('ads').insert(payload).select().single();
+  btn.disabled=false;
+  if(error){ toast('Notification failed: '+error.message,'err'); return; }
+  DATA.ads.unshift(data||payload); e.target.reset(); renderBadges(); renderAnnouncements(); renderKPIs(); renderRiskGrid();
+  toast('Notification queued for all users','ok');
+});
+
+/* ═════════════════ STATUSES ═════════════════ */
+function renderStatuses(){
+  const g=$('#st-grid');
+  g.innerHTML = DATA.statuses.length ? DATA.statuses.map(s=>{
+    const img=s.photo||s.image||s.media; const txt=s.text||s.caption||s.content;
+    return `<div class="st-card">${img?`<img src="${esc(img)}" alt="">`:`<div class="st-txt">${esc((txt||'Status').slice(0,60))}</div>`}
+      <div class="st-info"><span class="status-dot on" style="color:#fff"><i></i></span>${esc(s.username||s.user||'user')} · ${relTime(s.created_at)}</div></div>`;
+  }).join('') : `<div class="empty" style="grid-column:1/-1"><svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-dasharray="4 3"/></svg><div>No active statuses in the last 24 hours</div></div>`;
+}
+
+/* ═════════════════ DATABASE ═════════════════ */
+function renderDatabaseStats(){
+  const now = Date.now();
+  const users = DATA.users.length;
+  const messages = DATA.counts.messages;
+  const statuses = DATA.statuses.length;
+  const ads = DATA.ads.length;
+  const online = DATA.users.filter(u=>u.is_online).length;
+  const events = DATA.events.length;
+
+  // Estimate sizes (rough: each record ~500 bytes average)
+  const estUserBytes = users * 600;
+  const estMsgBytes = messages * 500;
+  const estStatusBytes = statuses * 400;
+  const estAdBytes = ads * 500;
+  const estEventBytes = events * 300;
+  const totalBytes = estUserBytes + estMsgBytes + estStatusBytes + estAdBytes + estEventBytes;
+  const totalMB = (totalBytes / (1024*1024)).toFixed(2);
+  const totalKB = (totalBytes / 1024).toFixed(1);
+
+  // Supabase free tier limits
+  const dbLimitMB = 500; // Free tier
+  const dbUsedPct = Math.min(100, (totalBytes / (dbLimitMB * 1024 * 1024)) * 100);
+
+  $('#db-refresh-time').textContent = 'Updated ' + new Date().toLocaleTimeString();
+
+  const dbCards = [
+    {label:'Database Size', val:totalMB+' MB', sub:`~${totalKB} KB estimated`, icon:'M12 2a10 10 0 1 0 10 10', tint:'brand', pct:dbUsedPct, note:`of ${dbLimitMB} MB free tier`},
+    {label:'Total Records', val:fmt(users+messages+statuses+ads+events), sub:`${fmt(users)} users · ${fmt(messages)} msgs`, icon:'M9 12h6M12 9v6', tint:'blue', pct:0, note:'across all tables'},
+    {label:'Active Connections', val:fmt(online), sub:`${users ? Math.round(online/users*100) : 0}% of users`, icon:'M12 2a10 10 0 1 0 10 10', tint:'green', pct:online ? Math.round(online/users*100) : 0, note:'currently online'},
+    {label:'Messages Stored', val:fmt(messages), sub:`~${(estMsgBytes/1024).toFixed(1)} KB`, icon:'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z', tint:'cyan', pct:messages ? Math.min(100, messages/100) : 0, note:'all time'},
+    {label:'Statuses (24h)', val:fmt(statuses), sub:'active stories', icon:'M12 2a10 10 0 1 0 10 10', tint:'pink', pct:0, note:'auto-expire after 24h'},
+    {label:'Analytics Events', val:fmt(events), sub:'last 2 hours', icon:'M3 3v18h18', tint:'violet', pct:0, note:'usage tracking'},
+  ];
+
+  $('#db-grid').innerHTML = dbCards.map(c => `
+    <div class="db-card">
+      <div class="db-icon tint-${c.tint}"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="${c.icon}"/></svg></div>
+      <div class="db-val">${c.val}</div>
+      <div class="db-label">${c.label}</div>
+      <div class="db-sub">${c.sub}</div>
+      ${c.pct > 0 ? `<div class="db-bar"><i style="width:${c.pct}%;background:${C[c.tint]||C.brand}"></i></div><div style="font-size:10px;color:var(--muted);margin-top:4px">${c.note||''}</div>` : ''}
+    </div>`).join('');
+
+  // Table sizes
+  const tableSizes = $('#db-table-sizes');
+  const tables = [
+    {name:'users', rows:users, estKB:(estUserBytes/1024).toFixed(1)},
+    {name:'messages', rows:messages, estKB:(estMsgBytes/1024).toFixed(1)},
+    {name:'statuses', rows:statuses, estKB:(estStatusBytes/1024).toFixed(1)},
+    {name:'ads', rows:ads, estKB:(estAdBytes/1024).toFixed(1)},
+    {name:'analytics_events', rows:events, estKB:(estEventBytes/1024).toFixed(1)},
+  ];
+  const maxRows = Math.max(1, ...tables.map(t=>t.rows));
+  tableSizes.innerHTML = tables.map(t => `
+    <div class="hbar-row">
+      <div class="nm" style="font-family:var(--mono);font-size:12px">${esc(t.name)}</div>
+      <div class="hbar-track"><div class="hbar-fill" style="width:${(t.rows/maxRows*100).toFixed(1)}%;background:${C.brand}"></div></div>
+      <div class="vv" style="font-size:12px">${fmt(t.rows)} <span style="color:var(--muted);font-size:10px">${t.estKB}KB</span></div>
+    </div>`).join('');
+
+  // Storage info
+  const storage = $('#db-storage');
+  storage.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div style="background:var(--bg-2);border-radius:8px;padding:14px;text-align:center">
+        <div style="font-size:28px;font-weight:700;font-family:var(--mono);color:var(--brand)">${totalMB} MB</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">Estimated total</div>
+        <div class="db-bar" style="margin-top:10px"><i style="width:${dbUsedPct}%;background:var(--brand)"></i></div>
+        <div style="font-size:11px;color:var(--text-2);margin-top:6px">${dbUsedPct.toFixed(1)}% of ${dbLimitMB} MB free tier limit</div>
+      </div>
+      <div style="background:var(--bg-2);border-radius:8px;padding:14px;text-align:center">
+        <div style="font-size:28px;font-weight:700;font-family:var(--mono);color:var(--blue)">${fmt(users+messages+statuses+ads+events)}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">Total records</div>
+        <div style="font-size:11px;color:var(--text-2);margin-top:6px">Across ${tables.length} tables</div>
+      </div>
+    </div>`; 
+}
+
+$('#mod-filter').addEventListener('click',e=>{
+  if(!e.target.dataset.f) return;
+  modFilter = e.target.dataset.f;
+  $$('#mod-filter button').forEach(b=>b.classList.toggle('active',b.dataset.f===modFilter));
+  renderModeration();
+});
+
+function addAuditLog(action, details={}){
+  const log = JSON.parse(localStorage.getItem('bchat_audit_log')||'[]');
+  log.unshift({action, details, timestamp:new Date().toISOString(), admin:ME?.username||'unknown'});
+  localStorage.setItem('bchat_audit_log', JSON.stringify(log.slice(0,500)));
+}
+
+function renderAuditLog(){
+  const log = JSON.parse(localStorage.getItem('bchat_audit_log')||'[]');
+  const body = $('#audit-body');
+  if(!body) return;
+  body.innerHTML = log.length ? log.map(entry=>`
+    <div style="padding:11px 16px;border-bottom:1px solid var(--border);font-size:13px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <b style="color:var(--text)">${esc(entry.action)}</b>
+        <span style="font-size:11px;color:var(--muted);font-family:var(--mono)">${new Date(entry.timestamp).toLocaleString()}</span>
+      </div>
+      <div style="color:var(--text-2);font-size:12px">by <b>@${esc(entry.admin)}</b></div>
+      ${Object.keys(entry.details).length ? `<div style="margin-top:6px;padding:8px;background:var(--bg-2);border-radius:6px;font-size:11.5px;font-family:var(--mono);color:var(--text-2)">${Object.entries(entry.details).map(([k,v])=>`<div>${esc(k)}: ${esc(String(v))}</div>`).join('')}</div>` : ''}
+    </div>
+  `).join('') : `<div class="empty"><svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><div>No actions logged yet</div></div>`;
+  const countEl = $('#audit-count');
+  if(countEl) countEl.textContent = `${fmt(log.length)} actions logged`;
+}
+
+$('#audit-clear').addEventListener('click',()=>{
+  confirmModal('Clear audit log?','This permanently removes all logged actions.',()=>{
+    localStorage.removeItem('bchat_audit_log');
+    renderAuditLog();
+    toast('Audit log cleared','ok');
+  });
+});
+
+$('#db-export-all').addEventListener('click',async()=>{
+  confirmModal('Export all data?','This will download users, messages, ads, statuses, and analytics as JSON files.',async()=>{
+    const exportData = {
+      users: DATA.users,
+      messages: DATA.recent,
+      ads: DATA.ads,
+      statuses: DATA.statuses,
+      analytics: DATA.events,
+      exportedAt: new Date().toISOString()
+    };
+    const blob = new Blob([JSON.stringify(exportData,null,2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `bchat-backup-${Date.now()}.json`; a.click();
+    URL.revokeObjectURL(url);
+    addAuditLog('export_all_data',{records:DATA.users.length+DATA.recent.length+DATA.ads.length+DATA.statuses.length+DATA.events.length});
+    toast('Data exported successfully','ok');
+  });
+});
+
+$('#db-import-users').addEventListener('click',()=>{
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = 'application/json';
+  input.onchange = async e => {
+    const file = e.target.files[0]; if(!file) return;
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      if(!Array.isArray(data.users)) throw new Error('Invalid format: users array required');
+      let imported = 0;
+      for(const user of data.users){
+        const {error} = await sb.from('users').upsert(user,{onConflict:'username'});
+        if(!error) imported++;
+      }
+      addAuditLog('import_users',{attempted:data.users.length, imported});
+      toast(`Imported ${imported} users`,'ok');
+      await loadAll();
+    } catch(err){ toast('Import failed: '+err.message,'err'); }
+  };
+  input.click();
+});
+
+function bulkDeleteUsers(usernames){
+  confirmModal(`Delete ${usernames.length} users?`,'This permanently removes selected users and their data.',async()=>{
+    for(const username of usernames){
+      const {error:msgErr} = await sb.from('messages').delete().eq('sender',username);
+      if(msgErr) console.warn('Failed to delete messages for',username,msgErr);
+      const {error} = await sb.from('users').delete().eq('username',username);
+      if(error){toast('Failed to delete @'+username+': '+error.message,'err');continue;}
+    }
+    addAuditLog('bulk_delete_users',{count:usernames.length, usernames});
+    DATA.users = DATA.users.filter(u=>!usernames.includes(u.username));
+    renderBadges(); renderUsers(); renderKPIs(); renderCharts(); renderRiskGrid();
+    toast(`Deleted ${usernames.length} user${usernames.length>1?'s':''}`,'ok');
+  });
+}
+
+// Database action handlers
+</script>
+</body>
+</html>

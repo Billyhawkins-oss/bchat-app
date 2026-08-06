@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>B CHAT</title>
+    <link rel="stylesheet" href="go.css">
+    <link rel="icon" href="logo.svg" type="image/svg+xml">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6C63FF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <!-- ══════ SEO ══════ -->
+    <meta name="description" content="B CHAT – free messaging app for family & friends. Chat, voice messages, calls, AI assistant, and private conversations. Install it free today.">
+    <meta name="keywords" content="free chat app, messaging app, B CHAT, family chat, friends chat, free calls, voice messages, AI chat, private messaging, install free">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://bchat-app.netlify.app/">
+
+    <!-- Open Graph (Google, Facebook, WhatsApp previews) -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://bchat-app.netlify.app/">
+    <meta property="og:title" content="B CHAT – Free Chat App for Family & Friends">
+    <meta property="og:description" content="Free messaging, voice messages, calls, AI assistant and private chat. Install B CHAT free today.">
+    <meta property="og:image" content="https://bchat-app.netlify.app/icon-512.png">
+    <meta property="og:site_name" content="B CHAT">
+
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="B CHAT – Free Chat App for Family & Friends">
+    <meta name="twitter:description" content="Free messaging, voice messages, calls, AI assistant and private chat. Install B CHAT free today.">
+    <meta name="twitter:image" content="https://bchat-app.netlify.app/icon-512.png">
+
+    <!-- Structured Data (Google Rich Results) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "B CHAT",
+      "url": "https://bchat-app.netlify.app/",
+      "description": "Free messaging app for family & friends. Chat, voice messages, calls, AI assistant, and private conversations.",
+      "applicationCategory": "CommunicationApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "screenshot": "https://bchat-app.netlify.app/icon-512.png",
+      "featureList": ["Chat", "Voice Messages", "Calls", "AI Assistant", "Private Messaging"]
+    }
+    </script>
+</head>
+<body>
+    <object data="icons.svg" type="image/svg+xml" style="display:none;position:absolute;" aria-hidden="true"></object>
+
+    <!-- ══════ SPLASH SCREEN ══════ -->
+    <div id="splash-screen" class="splash">
+        <img src="logo.svg" alt="B CHAT" class="splash-logo">
+        <h1 class="splash-title">B CHAT</h1>
+        <div class="splash-dots"><span></span><span></span><span></span></div>
+    </div>
+
+    <!-- ══════ LOGIN SCREEN ══════ -->
+    <div id="login-screen" class="screen active">
+        <button id="btn-login-theme" class="auth-theme-toggle" type="button" aria-label="Toggle dark or light mode" title="Dark / Light mode">☀️</button>
+        <div class="auth-container">
+            <img src="logo.svg" alt="B CHAT" class="auth-logo">
+            <h1 class="auth-title">B CHAT</h1>
+            <p class="auth-sub">Chat with family &amp; friends</p>
+            <div class="auth-features">
+                <span class="auth-feature">💬 Chat</span>
+                <span class="auth-feature">🎙 Voice</span>
+                <span class="auth-feature">📞 Calls</span>
+                <span class="auth-feature">🤖 AI</span>
+                <span class="auth-feature">🔒 Private</span>
+            </div>
+
+            <div class="auth-form-wrap">
+                <form id="login-form" class="auth-form">
+                    <div class="form-group">
+                        <input type="text" id="login-username" placeholder="Username" required autocomplete="username">
+                    </div>
+                    <div class="form-group pw-field">
+                        <input type="password" id="login-password" placeholder="Password" required autocomplete="current-password">
+                        <button type="button" class="pw-toggle" data-target="login-password" aria-label="Show password">👁</button>
+                    </div>
+                    <button type="submit" class="btn-auth">Log In</button>
+                    <p id="login-error" class="auth-error"></p>
+                    <p class="auth-switch">
+                        Don't have an account?
+                        <a href="#" id="go-signup">Sign Up</a>
+                    </p>
+                </form>
+                <div id="security-challenge-panel" class="auth-form hidden">
+                    <h2 class="auth-title">Security Verification</h2>
+                    <p class="auth-sub">You're signing in from a new device. Answer your security questions to continue.</p>
+                    <div id="security-questions-list"></div>
+                    <div class="signup-actions">
+                        <button type="button" class="btn-auth btn-auth-secondary" id="security-challenge-cancel">Cancel</button>
+                        <button type="button" class="btn-auth" id="security-challenge-submit">Verify Answers</button>
+                    </div>
+                    <p id="security-challenge-error" class="auth-error"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════ SIGNUP SCREEN ══════ -->
+    <div id="signup-screen" class="screen">
+        <button id="btn-signup-theme" class="auth-theme-toggle" type="button" aria-label="Toggle dark or light mode" title="Dark / Light mode">☀️</button>
+        <div class="auth-container">
+            <img src="logo.svg" alt="B CHAT" class="auth-logo">
+            <h1 class="auth-title">Create Account</h1>
+            <p class="auth-sub" id="signup-subtitle">Start with your email</p>
+
+            <form id="signup-form" class="auth-form">
+                <div class="signup-step active" id="signup-step-1">
+                    <div class="signup-progress" aria-label="Signup step 1 of 2">
+                        <span class="active"></span><span></span>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="signup-email" placeholder="Email address" required autocomplete="email" inputmode="email">
+                    </div>
+                    <button type="button" class="btn-auth" id="signup-next">Continue</button>
+                    <div class="auth-divider"><span>or</span></div>
+                    <div class="social-options" aria-label="Other signup options">
+                        <button type="button" class="social-btn primary-social" data-provider="Google"><span>G</span>Continue with Google</button>
+                        <button type="button" class="social-btn" data-provider="Apple"><span>A</span>Continue with Apple</button>
+                        <button type="button" class="social-btn" data-provider="Facebook"><span>f</span>Continue with Facebook</button>
+                        <button type="button" class="social-btn" data-provider="Microsoft"><span>M</span>Continue with Microsoft</button>
+                    </div>
+                </div>
+
+                <div class="signup-step" id="signup-step-2">
+                    <div class="signup-progress" aria-label="Signup step 2 of 3">
+                        <span class="active"></span><span class="active"></span><span></span>
+                    </div>
+                    <div class="avatar-upload">
+                        <div class="avatar-preview" id="signup-avatar-preview">
+                            <span id="signup-avatar-letter">?</span>
+                            <img id="signup-avatar-img" class="hidden" alt="Profile">
+                        </div>
+                        <label class="avatar-upload-btn" id="signup-avatar-btn">Choose from Gallery</label>
+                        <input type="file" id="signup-avatar-input" accept="image/*" class="file-input-hidden">
+                        <label class="avatar-upload-btn avatar-upload-alt" for="signup-avatar-input">or Upload New Photo</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="signup-display" placeholder="Display Name" required autocomplete="name" minlength="2" maxlength="40">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="signup-username" placeholder="Choose a Username" required autocomplete="username" minlength="3" maxlength="20" pattern="[A-Za-z0-9_]+" title="Use letters, numbers, and underscores only">
+                    </div>
+                    <div class="form-group pw-field">
+                        <input type="password" id="signup-start-password" placeholder="Password (min 6 characters)" required minlength="6" maxlength="128" autocomplete="new-password" title="Your password must be at least 6 characters">
+                        <button type="button" class="pw-toggle" data-target="signup-start-password" aria-label="Show password">👁</button>
+                    </div>
+                    <div class="form-group pw-field">
+                        <input type="password" id="signup-start-confirm" placeholder="Confirm password" required minlength="6" maxlength="128" autocomplete="new-password" title="Your password must be at least 6 characters">
+                        <button type="button" class="pw-toggle" data-target="signup-start-confirm" aria-label="Show password">👁</button>
+                    </div>
+                    <div class="signup-actions">
+                        <button type="button" class="btn-auth btn-auth-secondary" id="signup-back">Back</button>
+                        <button type="submit" class="btn-auth">Continue</button>
+                    </div>
+                </div>
+
+                <div class="signup-step" id="signup-step-3">
+                    <div class="signup-progress" aria-label="Signup step 3 of 3">
+                        <span class="active"></span><span class="active"></span><span class="active"></span>
+                    </div>
+                    <p class="auth-sub">Create 4-6 security question answers to protect new-device sign in.</p>
+                    <div class="form-group security-question pw-field">
+                        <label for="signup-sq-answer-1">1. What was the name of your first school?</label>
+                        <input type="password" id="signup-sq-answer-1" placeholder="Your answer" required autocomplete="off" minlength="2" maxlength="80">
+                        <button type="button" class="pw-toggle" data-target="signup-sq-answer-1" aria-label="Show answer">👁</button>
+                    </div>
+                    <div class="form-group security-question pw-field">
+                        <label for="signup-sq-answer-2">2. What is the name of your first pet?</label>
+                        <input type="password" id="signup-sq-answer-2" placeholder="Your answer" required autocomplete="off" minlength="2" maxlength="80">
+                        <button type="button" class="pw-toggle" data-target="signup-sq-answer-2" aria-label="Show answer">👁</button>
+                    </div>
+                    <div class="form-group security-question pw-field">
+                        <label for="signup-sq-answer-3">3. Which city were you born in?</label>
+                        <input type="password" id="signup-sq-answer-3" placeholder="Your answer" required autocomplete="off" minlength="2" maxlength="80">
+                        <button type="button" class="pw-toggle" data-target="signup-sq-answer-3" aria-label="Show answer">👁</button>
+                    </div>
+                    <div class="form-group security-question pw-field">
+                        <label for="signup-sq-answer-4">4. What is your favorite childhood toy?</label>
+                        <input type="password" id="signup-sq-answer-4" placeholder="Your answer" required autocomplete="off" minlength="2" maxlength="80">
+                        <button type="button" class="pw-toggle" data-target="signup-sq-answer-4" aria-label="Show answer">👁</button>
+                    </div>
+                    <div class="form-group security-question pw-field">
+                        <label for="signup-sq-answer-5">5. What is your favorite movie? (optional)</label>
+                        <input type="password" id="signup-sq-answer-5" placeholder="Your answer" autocomplete="off" minlength="2" maxlength="80">
+                        <button type="button" class="pw-toggle" data-target="signup-sq-answer-5" aria-label="Show answer">👁</button>
+                    </div>
+                    <div class="form-group security-question pw-field">
+                        <label for="signup-sq-answer-6">6. What is the name of the street where you grew up? (optional)</label>
+                        <input type="password" id="signup-sq-answer-6" placeholder="Your answer" autocomplete="off" minlength="2" maxlength="80">
+                        <button type="button" class="pw-toggle" data-target="signup-sq-answer-6" aria-label="Show answer">👁</button>
+                    </div>
+                    <div class="signup-actions">
+                        <button type="button" class="btn-auth btn-auth-secondary" id="signup-security-back">Back</button>
+                        <button type="submit" class="btn-auth">Sign Up</button>
+                    </div>
+                </div>
+                <p id="signup-error" class="auth-error"></p>
+                <button type="button" class="forgot-password-btn signup-forgot" id="forgot-password">Forgot password?</button>
+                <p class="auth-switch">
+                    Already have an account?
+                    <a href="#" id="go-login">Log In</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- ══════ MAIN APP ══════ -->
+    <div id="app-screen" class="screen">
+
+        <!-- ── Sidebar / Chat List ── -->
+        <div id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <img src="logo.svg" alt="B CHAT" class="sidebar-logo">
+                <h2>B CHAT</h2>
+                <div class="sidebar-actions">
+                    <button id="btn-guide" class="icon-btn" title="Guide"><svg class="btn-icon"><use href="icons.svg#ic-tutorial"/></svg></button>
+                    <button id="btn-starred" class="icon-btn" title="Starred Messages"><svg class="btn-icon"><use href="icons.svg#ic-star"/></svg></button>
+                    <button id="btn-contact-admin" class="icon-btn" title="Contact Admin" style="color:var(--amber)"><svg class="btn-icon"><use href="icons.svg#ic-announcements"/></svg></button>
+                    <button id="btn-logout" class="icon-btn" title="Logout"><svg class="btn-icon"><use href="icons.svg#ic-logout"/></svg></button>
+                </div>
+            </div>
+
+            <div id="user-bar" class="user-bar" title="Tap to open gallery &amp; change photo">
+                <div class="profile-pic-wrap" id="my-profile-wrap">
+                    <div class="user-avatar" id="my-avatar">B</div>
+                    <img id="my-avatar-img" class="avatar-img hidden" alt="Me">
+                    <div class="profile-edit-badge">&#128247;</div>
+                </div>
+                <span id="my-name">User</span>
+                <span id="my-code" class="my-code" title="Your B CHAT code — share it so friends can add you"></span>
+                <span class="online-tag">online</span>
+                <button id="btn-settings" class="icon-btn" title="Settings" style="margin-left:auto;width:30px;height:30px;">&#9881;</button>
+            </div>
+
+            <!-- ── Tab Content Area ── -->
+            <div class="tab-content-area">
+
+                <!-- TAB: Chats -->
+                <div id="tab-chats" class="tab-panel active">
+                    <div class="search-bar">
+                        <input type="text" id="search-chats" placeholder="Search conversations...">
+                    </div>
+                    <div class="chat-list-toolbar">
+                        <button id="btn-toggle-archive" class="archive-toggle" type="button">Show archived</button>
+                    </div>
+                    <div id="chat-list" class="chat-list">
+                        <div class="empty-state">
+                            <p>No conversations yet</p>
+                            <p class="hint">Tap the + button to start a new chat</p>
+                        </div>
+                    </div>
+                    <button id="btn-new-chat" class="fab-new-chat" type="button" title="New Chat">+</button>
+                </div>
+
+                <!-- TAB: Status -->
+                <div id="tab-status" class="tab-panel">
+                    <div class="status-header">
+                        <h3>Status</h3>
+                    </div>
+                    <div class="status-my" id="my-status-bar">
+                        <div class="status-avatar-wrap" id="my-status-avatar-wrap">
+                            <div class="user-avatar status-avatar" id="status-my-avatar">B</div>
+                            <img id="status-my-avatar-img" class="avatar-img hidden" alt="Me">
+                            <div class="status-add-badge">&#43;</div>
+                        </div>
+                        <div class="status-my-info">
+                            <strong>My Status</strong>
+                            <span id="my-status-hint">Tap to add status update</span>
+                        </div>
+                    </div>
+                    <p class="status-section-label">Recent updates</p>
+                    <div id="status-list" class="status-list">
+                        <div class="empty-state">
+                            <p>No status updates yet</p>
+                        </div>
+                    </div>
+
+                    <!-- Post Status Panel -->
+                    <div id="status-post-panel" class="status-post-panel hidden">
+                        <div class="status-post-header">
+                            <button id="btn-close-status-post" class="icon-btn">&times;</button>
+                            <h3>New Status</h3>
+                        </div>
+                        <textarea id="status-text-input" placeholder="What's on your mind?" rows="3"></textarea>
+                        <div class="status-post-actions">
+                            <label class="status-photo-btn" for="status-photo-input">&#128247; Add Photo</label>
+                            <input type="file" id="status-photo-input" accept="image/*" class="file-input-hidden">
+                            <img id="status-photo-preview" class="status-photo-preview hidden" alt="Preview">
+                        </div>
+                        <button id="btn-post-status" class="btn-auth">Post Status</button>
+                    </div>
+                </div>
+
+                <!-- TAB: Ads -->
+                <div id="tab-ads" class="tab-panel">
+                    <div class="status-header">
+                        <h3>Ads &amp; Announcements</h3>
+                    </div>
+                    <div class="ads-post-bar" id="ads-post-bar">
+                        <button id="btn-post-ad" class="ads-post-btn">&#43; Post an Ad</button>
+                    </div>
+                    <div id="ads-list" class="ads-list">
+                        <div class="empty-state">
+                            <p>No ads or announcements yet</p>
+                            <p class="hint">Post something for everyone to see</p>
+                        </div>
+                    </div>
+
+                    <!-- Post Ad Panel -->
+                    <div id="ad-post-panel" class="status-post-panel hidden">
+                        <div class="status-post-header">
+                            <button id="btn-close-ad-post" class="icon-btn">&times;</button>
+                            <h3>New Ad / Announcement</h3>
+                        </div>
+                        <input type="text" id="ad-title-input" placeholder="Title (e.g. For Sale, Event...)" class="ad-title-input">
+                        <textarea id="ad-text-input" placeholder="Description..." rows="3"></textarea>
+                        <div class="status-post-actions">
+                            <label class="status-photo-btn" for="ad-photo-input">&#128247; Add Photo</label>
+                            <input type="file" id="ad-photo-input" accept="image/*" class="file-input-hidden">
+                            <img id="ad-photo-preview" class="status-photo-preview hidden" alt="Preview">
+                        </div>
+                        <button id="btn-submit-ad" class="btn-auth">Post Ad</button>
+                    </div>
+                </div>
+
+                <!-- TAB: AI Assistant -->
+                <div id="tab-ai" class="tab-panel">
+                    <div class="status-header" style="display:flex;align-items:center;justify-content:space-between;">
+                        <h3>&#129302; B AI Assistant</h3>
+                        <button id="btn-clear-ai" class="icon-btn" title="Clear Chat" style="width:28px;height:28px;"><svg class="btn-icon" style="width:14px;height:14px;"><use href="icons.svg#ic-trash"/></svg></button>
+                    </div>
+                    <div id="ai-messages" class="messages ai-messages">
+                        <div class="message received" style="animation:none;">
+                            <div class="msg-text">Hi! I'm <strong>B AI</strong> — your built-in assistant. I work offline, no internet needed! Try asking me:<br><br>• Math: <em>"what is 245 * 38"</em><br>• Time: <em>"what time is it"</em><br>• Facts, jokes, quotes, tips<br>• Definitions and translations<br>• Or just chat with me!</div>
+                        </div>
+                    </div>
+                    <div class="message-input">
+                        <input type="text" id="ai-input" placeholder="Ask B AI something..." autocomplete="off">
+                        <button id="btn-ai-send" class="send-btn"><svg class="btn-icon send-icon"><use href="icons.svg#ic-send"/></svg></button>
+                    </div>
+                </div>
+
+                <!-- TAB: Missed Calls -->
+                <div id="tab-calls" class="tab-panel">
+                    <div class="status-header">
+                        <h3>📞 Missed Calls</h3>
+                    </div>
+                    <div class="ads-list">
+                        <div class="empty-state">
+                            <p>No missed voice or video calls yet</p>
+                            <p class="hint">Incoming calls will appear here when they happen</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: Tutorial / Guide -->
+                <div id="tab-tutorial" class="tab-panel">
+                    <div class="status-header" style="display:flex;align-items:center;justify-content:space-between;">
+                        <h3>📖 App Guide</h3>
+                        <div style="display:flex;gap:6px;align-items:center;">
+                            <select id="voice-select" class="voice-select" title="Choose narration voice">
+                                <option value="a">🎙 Voice 1</option>
+                                <option value="b">🎙 Voice 2</option>
+                            </select>
+                            <button id="btn-stop-voice" class="icon-btn hidden" title="Stop Voice" style="width:28px;height:28px;background:var(--danger);"><svg class="btn-icon" style="width:12px;height:12px;color:#fff;"><use href="icons.svg#ic-pause"/></svg></button>
+                        </div>
+                    </div>
+
+                    <div class="guide-widget" id="guide-widget">
+                        <div class="guide-widget-header">
+                            <div>
+                                <div class="guide-step-meta"><span id="guide-step-label">Step 1 of 20</span><span id="guide-time-desc">Read for 8 seconds</span></div>
+                                <div class="guide-step-title" id="guide-step-title">Tap Next to start the guided walkthrough.</div>
+                            </div>
+                            <button id="guide-restart" class="btn-auth btn-auth-secondary">Restart Guide</button>
+                        </div>
+                        <div class="guide-step-copy" id="guide-step-copy">Use Previous and Next to walk through each feature explanation. Each step highlights the matching card below and auto-advances after a few seconds.</div>
+                        <div class="guide-widget-actions">
+                            <button id="guide-prev" class="btn-auth btn-auth-secondary" disabled>◀ Previous</button>
+                            <button id="guide-next" class="btn-auth">Next ▶</button>
+                        </div>
+                    </div>
+
+                    <div class="tutorial-list" id="tutorial-list">
+
+                        <!-- ══════ CARTOON EXPLAINER "VIDEO" (scrolls with the list) ══════ -->
+                        <div class="explainer-stage" id="explainer-stage">
+                            <div class="explainer-sky"></div>
+                            <div class="explainer-scene">
+                                <div class="toon toon-a" id="toon-a">
+                                    <svg viewBox="0 0 120 140" class="toon-svg">
+                                        <defs>
+                                            <linearGradient id="bodyA" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="0" stop-color="#9d96ff"/><stop offset="1" stop-color="#6C63FF"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <ellipse cx="60" cy="131" rx="32" ry="7" fill="rgba(0,0,0,0.22)"/>
+                                        <rect x="49" y="104" width="9" height="18" rx="4.5" fill="#5a52e0"/>
+                                        <rect x="62" y="104" width="9" height="18" rx="4.5" fill="#5a52e0"/>
+                                        <rect x="33" y="56" width="54" height="56" rx="26" fill="url(#bodyA)"/>
+                                        <line x1="60" y1="16" x2="60" y2="6" stroke="#9d96ff" stroke-width="3"/>
+                                        <circle cx="60" cy="5" r="4.5" fill="#ffd166"/>
+                                        <circle cx="60" cy="40" r="28" fill="url(#bodyA)"/>
+                                        <ellipse cx="50" cy="39" rx="6.5" ry="7.5" fill="#fff"/><circle cx="51" cy="41" r="3.2" fill="#1a1a2e"/><circle cx="52.6" cy="39.2" r="1.1" fill="#fff"/>
+                                        <ellipse cx="70" cy="39" rx="6.5" ry="7.5" fill="#fff"/><circle cx="71" cy="41" r="3.2" fill="#1a1a2e"/><circle cx="72.6" cy="39.2" r="1.1" fill="#fff"/>
+                                        <circle cx="44" cy="49" r="4" fill="#ff8fb3" opacity="0.55"/>
+                                        <circle cx="76" cy="49" r="4" fill="#ff8fb3" opacity="0.55"/>
+                                        <path d="M50 51 Q60 61 70 51" stroke="#1a1a2e" stroke-width="3" fill="none" stroke-linecap="round"/>
+                                        <rect class="toon-arm" x="18" y="64" width="12" height="30" rx="6" fill="#9d96ff"/>
+                                        <rect x="86" y="70" width="13" height="26" rx="6" fill="#9d96ff"/>
+                                        <circle cx="98" cy="74" r="7.5" fill="#b3acff"/>
+                                    </svg>
+                                </div>
+                                <div class="toon toon-b" id="toon-b">
+                                    <svg viewBox="0 0 120 140" class="toon-svg">
+                                        <defs>
+                                            <linearGradient id="bodyB" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="0" stop-color="#54e6d3"/><stop offset="1" stop-color="#22b8a6"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <ellipse cx="60" cy="131" rx="30" ry="7" fill="rgba(0,0,0,0.22)"/>
+                                        <rect x="50" y="104" width="9" height="18" rx="4.5" fill="#1a9b8c"/>
+                                        <rect x="61" y="104" width="9" height="18" rx="4.5" fill="#1a9b8c"/>
+                                        <rect x="35" y="58" width="50" height="54" rx="25" fill="url(#bodyB)"/>
+                                        <circle cx="52" cy="20" r="5" fill="#ffd166"/>
+                                        <circle cx="60" cy="42" r="26" fill="url(#bodyB)"/>
+                                        <ellipse cx="51" cy="41" rx="6" ry="7" fill="#fff"/><circle cx="52" cy="43" r="3" fill="#12332e"/><circle cx="53.5" cy="41.2" r="1" fill="#fff"/>
+                                        <ellipse cx="69" cy="41" rx="6" ry="7" fill="#fff"/><circle cx="70" cy="43" r="3" fill="#12332e"/><circle cx="71.5" cy="41.2" r="1" fill="#fff"/>
+                                        <circle cx="46" cy="50" r="3.6" fill="#ffb27a" opacity="0.6"/>
+                                        <circle cx="74" cy="50" r="3.6" fill="#ffb27a" opacity="0.6"/>
+                                        <path d="M51 52 Q60 61 69 52" stroke="#12332e" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+                                        <rect x="20" y="70" width="11" height="26" rx="5.5" fill="#54e6d3"/>
+                                        <rect x="8" y="58" width="26" height="20" rx="6" fill="#fff"/>
+                                        <path d="M14 78 l6 0 l-3 5 z" fill="#fff"/>
+                                        <circle cx="16" cy="68" r="1.8" fill="#22b8a6"/><circle cx="21" cy="68" r="1.8" fill="#22b8a6"/><circle cx="26" cy="68" r="1.8" fill="#22b8a6"/>
+                                        <rect x="90" y="70" width="11" height="26" rx="5.5" fill="#54e6d3"/>
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <!-- Phone the character presents — a clear mini B CHAT screen you can zoom into -->
+                            <div class="explainer-phone" id="explainer-phone" title="Tap to zoom into B CHAT">
+                                <div class="phone-frame">
+                                    <div class="phone-notch"></div>
+                                    <div class="phone-screen">
+                                        <div class="mini-app">
+                                            <div class="mini-head">
+                                                <div class="mini-logo">B</div>
+                                                <div class="mini-title">B CHAT</div>
+                                                <span class="mini-online"></span>
+                                            </div>
+                                            <div class="mini-msgs">
+                                                <div class="mini-bubble recv">Hi family! 👋</div>
+                                                <div class="mini-bubble sent">Hey! 😊</div>
+                                                <div class="mini-bubble recv">Love this app! ❤️</div>
+                                                <div class="mini-bubble sent typing"><span></span><span></span><span></span></div>
+                                            </div>
+                                            <div class="mini-inputbar"><span>Message…</span><div class="mini-send">➤</div></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="zoom-hint">🔍 Tap to zoom</div>
+                            </div>
+
+                            <div class="explainer-bubble" id="explainer-bubble">Meet B CHAT! 👋</div>
+                            <button class="explainer-play" id="explainer-play" aria-label="Play intro">▶</button>
+                            <div class="explainer-tag">▶ Watch the quick cartoon intro</div>
+                        </div>
+
+                        <div class="tutorial-card" data-step="0">
+                            <div class="tutorial-num">01</div>
+                            <div class="tutorial-body">
+                                <h4>Welcome to B CHAT</h4>
+                                <p>B CHAT is a messaging app built by Billy Hawkins. It lets you chat with family and friends, share photos, send voice notes, make calls, and much more.</p>
+                            </div>
+                            <button class="tutorial-play-btn" title="Listen"><svg class="btn-icon"><use href="icons.svg#ic-play"/></svg></button>
+                        </div>
+
+                        <div class="tutorial-card" data-step="1">
+                            <div class="tutorial-num">02</div>
+                            <div class="tutorial-body">
+                                <h4>Sign Up &amp; Log In</h4>
+                                <p>Start signup with your real email and password, then create your display name, username, and optional profile photo. Next time, just log in with your username and password.</p>
+                            </div>
+                            <button class="tutorial-play-btn" title="Listen"><svg class="btn-icon"><use href="icons.svg#ic-play"/></svg></button>
+                        </div>
+
+                        <div class="tutorial-card" data-step="2">
+                            <div class="tutorial-num">03</div>
+                            <div class="tutorial-body">
+                                <h4>Starting a Chat</h4>
+                                <p>Tap the plus button at the top to see all registered users. Tap on a person's name to start a conversation with them. You can search your chats using the search bar.</p>
+                            </div>
+                            <button class="tutorial-play-btn" title="Listen"><svg class="btn-icon"><use href="icons.svg#ic-play"/></svg></button>
+                        </div>
+
+                        <div class="tutorial-card" data-step="3">
+                            <div class="tutorial-num">04</div>
+                            <div class="tutorial-body">
+                                <h4>Sending Messages</h4>
+                                <p>Type your message and tap the send button. You can use text formatting: wrap words in asterisks for bold, underscores for italic, and tildes for strikethrough. Links are automatically clickable.</p>
+                            </div>
+                            <button class="tutorial-play-btn" title="Listen"><svg class="btn-icon"><use href="icons.svg#ic-play"/></svg></button>
+                        </div>
+
+                        <div class="tutorial-card" data-step="4">
+                            <div class="tutorial-num">05</div>
+                            <div class="tutorial-body">
+                                <h4>Photos, Emojis &amp; Voice Notes</h4>
+                                <p>Tap the camera icon to send photos. Tap the smiley face to open the emoji picker with 7 categories. Hold the microphone button to record a voice note — release to send, tap X to cancel.</p>
+                            </div>
+                            <button class="tutorial-play-btn" title="Listen"><svg class="btn-icon"><use href="icons.svg#ic-play"/></svg></button>
+                        </div>
+
+                        <div class="tutorial-card" data-step="5">
+                            <div class="tutorial-num">06</div>
+                            <div class="tutorial-body">
+                                <h4>Message Actions</h4>
+                                <p>Long-press any message to reply, forward, star, react, pin the chat, or delete. Double-tap a message to quickly react with an emoji. Your sent messages show blue read receipts.</p>
+                            </div>
+                            <button class="tutorial-play-btn" title="Listen"><svg class="btn-icon"><use href="icons.svg#ic-play"/></svg></button>
+                        </div>
+
+                        <div class="tutorial-card" data-step="6">
+                            <div class="tutorial-num">07</div>
+                            <div class="tutorial-body">
+                                <h4>Voice &amp; Video Calls</h4>
+                                <p>In a chat, tap the phone icon for a voice call or the camera icon for a video call. Your real microphone and camera are used. You can mute, use speaker, flip the camera, and end the call. Call duration is logged in the chat.</p>
+                            </div>
+                            <button class="tutorial-play-btn" title="Listen"><svg class="btn-icon"><use href="icons.svg#ic-play"/></svg></button>
+                        </div>
+
+                        <div class="tutorial-card" data-step="7">
+                            <div class="tutorial-num">08</div>
+                            <div class="tutorial-body">
+                                <h4>Profile &amp; Gallery</h4>
+                                <p>Tap your profile picture in the sidebar to open the photo gallery. Upload photos from your device, set any as your profile picture, or delete them. Tap another user's avatar in a chat to see their profile card.</p>
+                            </div>
+                            <button class="tutorial-play-btn" title="Listen"><svg class="btn-icon"><use href="icons.svg#ic-play"/></svg></button>
+                        </div>
+
+                        <div class="tutorial-card" data-step="8">
+                            <div class="tutorial-num">09</div>
+                            <div class="tutorial-body">
+                                <h4>Status Updates</h4>
+                                <p>Go to the Status tab to post text or photo updates. Your status is visible to all users and automatically disappears after 24 hours — just like stories. Tap on someone's status to view it with a progress bar.</p>
+                            </div>
+                            <button class="tutorial-play-btn" title="Listen"><svg class="btn-icon"><use href="icons.svg#ic-play"/></svg></button>
+                        </div>
+
+                        <div class="tutorial-card" data-step="9">
+                            <div class="tutorial-num">10</div>
+                            <div class="tutorial-body">
+                                <h4>Ads &amp; Announcements</h4>
+                                <p>The Ads tab lets you post announcements with a title, description, and photo that everyone can see. Great for family announcements, selling items, or sharing events. You can delete your own ads.</p>
+                            </div>
+                            <button class="tutorial-play-btn" title="Listen"><svg class="btn-icon"><use href="icons.svg#ic-play"/></svg></button>
+                        </div>
+
+                        <div class="tutorial-card" data-step="10">
+                            <div class="tutorial-num">11</div>
+                            <div class="tutorial-body">
+                                <h4>AI Assistant</h4>
+                                <p>The AI tab gives you a built-in smart assistant. When you're online it now gives real, conversational AI answers to anything — no setup or API key needed. Offline it still helps with math, jokes, facts, riddles, quotes, tips and translations, and can generate images — just say "create an image of" followed by what you want.</p>
+                            </div>
+                            <button class="tutorial-play-btn" title="Listen"><svg class="btn-icon"><use href="icons.svg#ic-play"/></svg></button>
+                        </div>
+
+                        <div class="tutorial-card" data-step="11">
+                            <div class="tutorial-num">12</div>
+                            <div class="tutorial-body">
+                                <h4>Settings &amp; Personalization</h4>
+                                <p>Tap the gear icon next to your name to open Settings. Add a bio about yourself, pick a custom accent color to personalize the entire app, and choose from built-in wallpaper presets for your chat backgrounds.</p>
+                            </div>
+                            <button class="tutorial-play-btn" title="Listen"><svg class="btn-icon"><use href="icons.svg#ic-play"/></svg></button>
+                        </div>
+
+                        <div class="tutorial-card" data-step="12">
+                            <div class="tutorial-num">13</div>
+                            <div class="tutorial-body">
+                                <h4>Shared Media &amp; Disappearing Messages</h4>
+                                <p>Tap the media icon in a chat header to view all shared photos in that conversation. Long-press a message and tap Disappearing Messages to auto-delete messages after 5 minutes, 1 hour, 24 hours, or 7 days.</p>
+                            </div>
+                            <button class="tutorial-play-btn" title="Listen"><svg class="btn-icon"><use href="icons.svg#ic-play"/></svg></button>
+                        </div>
+
+                        <div class="tutorial-card" data-step="13">
+                            <div class="tutorial-num">14</div>
+                            <div class="tutorial-body">
+                                <h4>Extra Features</h4>
+                                <p>Use the sun icon to toggle dark and light mode. Tap the star icon to view all your starred messages. Use the search icon inside a chat to find specific messages. The browser tab shows your unread message count. Change chat backgrounds using the palette icon.</p>
+                            </div>
+                            <button class="tutorial-play-btn" title="Listen"><svg class="btn-icon"><use href="icons.svg#ic-play"/></svg></button>
+                        </div>
+
+                        <div class="tutorial-card" data-step="14">
+                            <div class="tutorial-num">15</div>
+                            <div class="tutorial-body">
+                                <h4>Password Security &amp; Privacy</h4>
+                                <p>Your account is protected. On the sign up and log in screens, tap the eye icon to show or hide your password, and watch the strength meter as you type to create a strong one. Your password is encrypted before it's saved, so no one — not even the app owner — can read it.</p>
+                            </div>
+                            <button class="tutorial-play-btn" title="Listen"><svg class="btn-icon"><use href="icons.svg#ic-play"/></svg></button>
+                        </div>
+
+                        <div class="tutorial-card" data-step="15">
+                            <div class="tutorial-num">16</div>
+                            <div class="tutorial-body">
+                                <h4>Online Status &amp; Last Seen</h4>
+                                <p>See who's around. A green dot appears on the avatar of anyone currently online — in your chat list and when you start a new chat. Inside a chat, the header shows whether the person is online, or when they were last seen.</p>
+                            </div>
+                            <button class="tutorial-play-btn" title="Listen"><svg class="btn-icon"><use href="icons.svg#ic-play"/></svg></button>
+                        </div>
+
+                        <div class="tutorial-card" data-step="16">
+                            <div class="tutorial-num">17</div>
+                            <div class="tutorial-body">
+                                <h4>Offline Mode &amp; Alerts</h4>
+                                <p>B CHAT always tells you when you're offline. A red banner appears at the top, and you'll get a pop-up if you try to send a message without internet. The AI assistant keeps working offline with jokes, facts, riddles and more — it just lets you know it's in offline mode.</p>
+                            </div>
+                            <button class="tutorial-play-btn" title="Listen"><svg class="btn-icon"><use href="icons.svg#ic-play"/></svg></button>
+                        </div>
+
+                        <div class="tutorial-card" data-step="17">
+                            <div class="tutorial-num">18</div>
+                            <div class="tutorial-body">
+                                <h4>Choose Your Guide Voice</h4>
+                                <p>Prefer a different narrator? Use the 🎙 Voice selector at the top of this guide to switch between two different voices for the spoken tour. Your choice is remembered next time.</p>
+                            </div>
+                            <button class="tutorial-play-btn" title="Listen"><svg class="btn-icon"><use href="icons.svg#ic-play"/></svg></button>
+                        </div>
+
+                        <div class="tutorial-card" data-step="18">
+                            <div class="tutorial-num">19</div>
+                            <div class="tutorial-body">
+                                <h4>Chat Like a Pro (Ticks, Swipe &amp; More)</h4>
+                                <p>Your sent messages show ticks: <strong>grey ✓✓ means delivered</strong>, <strong>blue ✓✓ means read</strong>. <strong>Swipe a message to the right</strong> to reply to it instantly. When you scroll up in a long chat, tap the <strong>down-arrow button</strong> to jump back to the latest message. Messages are grouped by day with "Today" and "Yesterday" labels.</p>
+                            </div>
+                            <button class="tutorial-play-btn" title="Listen"><svg class="btn-icon"><use href="icons.svg#ic-play"/></svg></button>
+                        </div>
+
+                        <div class="tutorial-card" data-step="19">
+                            <div class="tutorial-num">20</div>
+                            <div class="tutorial-body">
+                                <h4>Your 4-Digit Code &amp; Multiple Devices</h4>
+                                <p>Each account gets a unique <strong>4-digit code</strong> shown next to your name — share it so family can add you. To start a chat, tap <strong>+</strong> and enter their code. You can also use B CHAT on <strong>any phone or computer</strong> — just log in with the same username and password, and all your chats appear.</p>
+                            </div>
+                            <button class="tutorial-play-btn" title="Listen"><svg class="btn-icon"><use href="icons.svg#ic-play"/></svg></button>
+                        </div>
+
+                        <button id="btn-play-all" class="btn-auth" style="margin:16px 14px;">&#9654; Play Full Tour (Voice)</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ── Bottom Tab Bar ── -->
+            <div class="bottom-tabs">
+                <button class="bottom-tab active" data-tab="tab-chats">
+                    <svg class="tab-svg-icon"><use href="icons.svg#ic-chats"/></svg>
+                    <span class="tab-label">Chats</span>
+                </button>
+                <button class="bottom-tab" data-tab="tab-status">
+                    <svg class="tab-svg-icon"><use href="icons.svg#ic-status"/></svg>
+                    <span class="tab-label">Status</span>
+                </button>
+                <button class="bottom-tab" data-tab="tab-ads">
+                    <svg class="tab-svg-icon"><use href="icons.svg#ic-ads"/></svg>
+                    <span class="tab-label">Ads</span>
+                </button>
+                <button class="bottom-tab" data-tab="tab-ai">
+                    <svg class="tab-svg-icon"><use href="icons.svg#ic-ai"/></svg>
+                    <span class="tab-label">AI</span>
+                </button>
+                <button class="bottom-tab" data-tab="tab-calls">
+                    <svg class="tab-svg-icon"><use href="icons.svg#ic-phone"/></svg>
+                    <span class="tab-label">Calls</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ── Chat Area ── -->
+        <div id="chat-area" class="chat-area chat-closed">
+            <div id="chat-welcome" class="chat-welcome">
+                <img src="logo.svg" alt="B CHAT" class="welcome-logo">
+                <h2>Welcome to B CHAT</h2>
+                <p>Select a conversation or start a new one</p>
+            </div>
+
+            <div id="chat-view" class="chat-view hidden">
+                <div class="chat-header">
+                    <button id="btn-back" class="icon-btn back-btn"><svg class="btn-icon"><use href="icons.svg#ic-back"/></svg></button>
+                    <div class="chat-header-info" id="chat-header-info" title="View profile">
+                        <div class="chat-header-avatar-wrap">
+                            <div class="chat-header-avatar" id="chat-avatar">U</div>
+                            <img id="chat-avatar-img" class="avatar-img hidden" alt="User">
+                        </div>
+                        <div>
+                            <h3 id="chat-name">User</h3>
+                            <span id="chat-status" class="chat-status">B CHAT user</span>
+                        </div>
+                    </div>
+                    <button id="btn-search-msgs" class="icon-btn" title="Search Messages"><svg class="btn-icon"><use href="icons.svg#ic-search"/></svg></button>
+                    <button id="btn-media-gallery" class="icon-btn" title="Shared Media">&#128444;</button>
+                    <button id="btn-voice-call" class="icon-btn" title="Voice Call"><svg class="btn-icon"><use href="icons.svg#ic-phone"/></svg></button>
+                    <button id="btn-video-call" class="icon-btn" title="Video Call"><svg class="btn-icon"><use href="icons.svg#ic-video"/></svg></button>
+                    <button id="btn-chat-bg" class="icon-btn" title="Change Background"><svg class="btn-icon"><use href="icons.svg#ic-palette"/></svg></button>
+                    <button id="btn-chat-more" class="icon-btn" title="More options">⋯</button>
+                    <button id="btn-rename-contact" class="icon-btn" title="Rename this contact" style="font-size:16px;">✎</button>
+                </div>
+
+                <div id="msg-search-bar" class="msg-search-bar hidden">
+                    <input type="text" id="msg-search-input" placeholder="Search in conversation...">
+                    <button id="btn-close-msg-search" class="reply-bar-close">&times;</button>
+                </div>
+
+                <div id="messages" class="messages"></div>
+
+                <button id="scroll-bottom-btn" class="scroll-bottom-btn" aria-label="Scroll to latest message">⬇</button>
+
+                <div id="typing-indicator" class="typing-indicator hidden">
+                    <span class="typing-dots"><span></span><span></span><span></span></span>
+                    <span id="typing-text">typing</span>
+                </div>
+
+                <div id="reply-bar" class="reply-bar hidden">
+                    <div class="reply-bar-content">
+                        <span class="reply-bar-label">Replying to</span>
+                        <span id="reply-bar-text" class="reply-bar-text"></span>
+                    </div>
+                    <button id="reply-bar-close" class="reply-bar-close">&times;</button>
+                </div>
+
+                <div id="voice-record-bar" class="voice-record-bar hidden">
+                    <span class="record-dot"></span>
+                    <span id="record-timer">0:00</span>
+                    <span class="record-hint">Release to send, swipe left to cancel</span>
+                    <button id="btn-cancel-record" class="reply-bar-close">&times;</button>
+                </div>
+
+                <div class="message-input">
+                    <button id="btn-emoji" class="input-icon-btn" title="Emoji"><svg class="btn-icon"><use href="icons.svg#ic-smile"/></svg></button>
+                    <button id="btn-photo" class="input-icon-btn" title="Send Photo"><svg class="btn-icon"><use href="icons.svg#ic-camera"/></svg></button>
+                    <input type="file" id="photo-input" accept="image/*" class="file-input-hidden">
+                    <input type="text" id="msg-input" placeholder="Type a message..." autocomplete="off">
+                    <button id="btn-voice" class="input-icon-btn" title="Voice Note"><svg class="btn-icon"><use href="icons.svg#ic-mic"/></svg></button>
+                    <button id="btn-send" class="send-btn"><svg class="btn-icon send-icon"><use href="icons.svg#ic-send"/></svg></button>
+                </div>
+
+                <!-- Emoji Picker -->
+                <div id="emoji-picker" class="emoji-picker hidden">
+                    <div class="emoji-tabs">
+                        <button class="emoji-tab active" data-cat="smileys">&#128522;</button>
+                        <button class="emoji-tab" data-cat="gestures">&#128075;</button>
+                        <button class="emoji-tab" data-cat="hearts">&#10084;&#65039;</button>
+                        <button class="emoji-tab" data-cat="animals">&#128054;</button>
+                        <button class="emoji-tab" data-cat="food">&#127829;</button>
+                        <button class="emoji-tab" data-cat="activities">&#9917;</button>
+                        <button class="emoji-tab" data-cat="objects">&#128161;</button>
+                    </div>
+                    <div class="emoji-grid" id="emoji-grid"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="chat-actions-menu" class="chat-actions-menu hidden">
+            <button class="chat-action-btn" data-action="archive">Archive chat</button>
+            <button class="chat-action-btn" data-action="lock">Lock chat</button>
+            <button class="chat-action-btn" data-action="password">Set lock password</button>
+        </div>
+
+        <!-- ── New Chat Modal ── -->
+        <div id="new-chat-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>New Chat</h3>
+                    <button id="btn-close-modal" class="icon-btn">&times;</button>
+                </div>
+                <div class="code-add">
+                    <p class="code-add-hint">Enter your friend's <strong>4-digit B CHAT code</strong> to start chatting.</p>
+                    <input type="text" id="add-code-input" class="code-input" inputmode="numeric" maxlength="4" placeholder="0000" autocomplete="off">
+                    <input type="text" id="add-nickname-input" class="add-nickname" maxlength="30" placeholder="Name this contact (optional, e.g. Dad)" autocomplete="off">
+                    <button id="btn-add-by-code" class="btn-auth">Start Chat</button>
+                    <p id="add-code-error" class="auth-error"></p>
+                </div>
+                <div id="user-results" class="user-results"></div>
+            </div>
+        </div>
+
+        <!-- ── Chat Background Picker ── -->
+        <div id="bg-picker-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Chat Background</h3>
+                    <button id="btn-close-bg-picker" class="icon-btn">&times;</button>
+                </div>
+                <div class="bg-picker-options">
+                    <button id="bg-default" class="bg-option-btn">Default (No Image)</button>
+                    <label class="bg-option-btn bg-upload-btn" for="bg-file-input">&#128247; Choose from Device</label>
+                    <input type="file" id="bg-file-input" accept="image/*" class="file-input-hidden">
+                </div>
+                <p class="bg-picker-label">Or pick from your gallery:</p>
+                <div id="bg-picker-grid" class="gallery-grid bg-picker-grid"></div>
+            </div>
+        </div>
+
+        <!-- ── Gallery / File Manager Modal ── -->
+        <div id="gallery-modal" class="modal hidden">
+            <div class="modal-content gallery-modal-content">
+                <div class="modal-header">
+                    <h3 id="gallery-title">My Photos</h3>
+                    <button id="btn-close-gallery" class="icon-btn">&times;</button>
+                </div>
+                <div class="gallery-toolbar">
+                    <label class="gallery-upload-btn" for="gallery-file-input">
+                        &#43; Upload Photos
+                    </label>
+                    <input type="file" id="gallery-file-input" accept="image/*" multiple class="file-input-hidden">
+                    <span id="gallery-count" class="gallery-count">0 photos</span>
+                </div>
+                <div id="gallery-grid" class="gallery-grid">
+                    <div class="gallery-empty">
+                        <p>&#128247;</p>
+                        <p>No photos yet</p>
+                        <p class="hint">Upload photos from your device to build your gallery</p>
+                    </div>
+                </div>
+                <div id="gallery-preview" class="gallery-preview hidden">
+                    <img id="gallery-preview-img" alt="Preview">
+                    <div class="gallery-preview-actions">
+                        <button id="gallery-set-profile" class="btn-gallery-action">Set as Profile Photo</button>
+                        <button id="gallery-delete" class="btn-gallery-action btn-danger">Delete</button>
+                        <button id="gallery-preview-close" class="btn-gallery-action btn-secondary">Back</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Profile Card ── -->
+        <div id="profile-card-modal" class="modal hidden">
+            <div class="modal-content profile-card">
+                <div class="profile-card-banner"></div>
+                <div class="profile-card-avatar-wrap">
+                    <div class="user-avatar profile-card-avatar" id="pc-avatar">U</div>
+                    <img id="pc-avatar-img" class="avatar-img hidden" alt="User">
+                </div>
+                <div class="profile-card-body">
+                    <h2 id="pc-name">User</h2>
+                    <p id="pc-username" class="pc-username">@user</p>
+                    <p id="pc-status-text" class="pc-status-text">B CHAT user</p>
+                    <p id="pc-joined" class="pc-joined"></p>
+                    <button id="pc-close" class="btn-auth" style="margin-top:12px;">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Message Context Menu ── -->
+        <div id="msg-context-menu" class="msg-context-menu hidden">
+            <button class="ctx-btn" data-action="reply">&#8617; Reply</button>
+            <button class="ctx-btn" data-action="forward">&#10145; Forward</button>
+            <button class="ctx-btn" data-action="star">&#11088; Star</button>
+            <button class="ctx-btn" data-action="react">&#10084;&#65039; React</button>
+            <button class="ctx-btn" data-action="pin">&#128204; Pin Chat</button>
+            <button class="ctx-btn" data-action="disappear">&#9203; Disappearing Messages</button>
+            <button class="ctx-btn ctx-btn-danger" data-action="delete-me">&#128465; Delete for Me</button>
+            <button class="ctx-btn ctx-btn-danger" data-action="delete-all">&#128465; Delete for Everyone</button>
+            <button class="ctx-btn" data-action="cancel">Cancel</button>
+        </div>
+
+        <!-- ── Forward Picker ── -->
+        <div id="forward-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Forward to</h3>
+                    <button id="btn-close-forward" class="icon-btn">&times;</button>
+                </div>
+                <div id="forward-list" class="user-results"></div>
+            </div>
+        </div>
+
+        <!-- ── Starred Messages ── -->
+        <div id="starred-modal" class="modal hidden">
+            <div class="modal-content gallery-modal-content">
+                <div class="modal-header">
+                    <h3>&#11088; Starred Messages</h3>
+                    <button id="btn-close-starred" class="icon-btn">&times;</button>
+                </div>
+                <div id="starred-list" class="starred-list"></div>
+            </div>
+        </div>
+
+        <!-- ── Reaction Picker ── -->
+        <div id="reaction-picker" class="reaction-picker hidden">
+            <button class="react-emoji" data-r="❤️">❤️</button>
+            <button class="react-emoji" data-r="😂">😂</button>
+            <button class="react-emoji" data-r="👍">👍</button>
+            <button class="react-emoji" data-r="😮">😮</button>
+            <button class="react-emoji" data-r="😢">😢</button>
+            <button class="react-emoji" data-r="🔥">🔥</button>
+        </div>
+
+        <!-- ── Call Screen ── -->
+        <div id="call-screen" class="call-screen hidden">
+            <div class="call-bg"></div>
+            <video id="call-video" class="call-video hidden" autoplay playsinline muted></video>
+            <video id="call-self-video" class="call-self-video hidden" autoplay playsinline muted></video>
+            <audio id="call-audio" autoplay playsinline></audio>
+            <div class="call-content">
+                <div id="call-offline-banner" class="call-offline-banner hidden">
+                    &#9888; No internet connection. Please connect to the internet to make calls.
+                </div>
+                <div class="call-avatar-wrap" id="call-avatar-wrap">
+                    <div class="user-avatar call-avatar" id="call-avatar">U</div>
+                    <img id="call-avatar-img" class="avatar-img hidden" alt="User">
+                </div>
+                <h2 id="call-name">User</h2>
+                <p id="call-type-label" class="call-type-label">Calling...</p>
+                <p id="call-error" class="call-error hidden"></p>
+                <p id="call-timer" class="call-timer"></p>
+                <div class="call-actions">
+                    <button id="btn-mute-call" class="call-btn mute-btn" title="Mute">&#128263;</button>
+                    <button id="btn-end-call" class="call-btn end-btn" title="End Call">&#128308;</button>
+                    <button id="btn-speaker-call" class="call-btn speaker-btn" title="Speaker">&#128264;</button>
+                    <button id="btn-flip-cam" class="call-btn flip-btn hidden" title="Flip Camera"><svg class="btn-icon" style="width:22px;height:22px;"><use href="icons.svg#ic-flip"/></svg></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Media Gallery Modal ── -->
+        <div id="media-gallery-modal" class="modal hidden">
+            <div class="modal-content gallery-modal-content">
+                <div class="modal-header">
+                    <h3>&#128444; Shared Media</h3>
+                    <button id="btn-close-media-gallery" class="icon-btn">&times;</button>
+                </div>
+                <div id="media-gallery-grid" class="gallery-grid"></div>
+            </div>
+        </div>
+
+        <!-- ── Disappearing Messages Picker ── -->
+        <div id="disappear-modal" class="modal hidden">
+            <div class="modal-content" style="max-width:320px;">
+                <div class="modal-header">
+                    <h3>&#9203; Disappearing Messages</h3>
+                    <button id="btn-close-disappear" class="icon-btn">&times;</button>
+                </div>
+                <div class="disappear-options">
+                    <button class="disappear-opt" data-dur="0">Off</button>
+                    <button class="disappear-opt" data-dur="300000">5 minutes</button>
+                    <button class="disappear-opt" data-dur="3600000">1 hour</button>
+                    <button class="disappear-opt" data-dur="86400000">24 hours</button>
+                    <button class="disappear-opt" data-dur="604800000">7 days</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Settings / Accent Color ── -->
+        <div id="settings-modal" class="modal hidden">
+            <div class="modal-content" style="max-width:360px;">
+                <div class="modal-header">
+                    <h3>&#9881; Settings</h3>
+                    <button id="btn-close-settings" class="icon-btn">&times;</button>
+                </div>
+                <div class="settings-body">
+                    <div class="settings-section">
+                        <label class="settings-label">Your B CHAT Code</label>
+                        <div class="settings-code-row">
+                            <span class="settings-code" id="settings-code">----</span>
+                            <button id="btn-copy-code" class="settings-mini-btn" type="button">Copy</button>
+                        </div>
+                        <p class="settings-hint">Share this so family &amp; friends can add you.</p>
+                    </div>
+                    <div class="settings-section">
+                        <label class="settings-label">Display Name</label>
+                        <input type="text" id="settings-display" class="settings-input" maxlength="40" placeholder="Your name">
+                        <button id="btn-save-display" class="btn-auth" style="padding:8px;font-size:0.82rem;margin-top:6px;">Save Name</button>
+                    </div>
+                    <div class="settings-section">
+                        <label class="settings-label">Appearance</label>
+                        <button id="btn-settings-theme" class="settings-toggle-row" type="button">
+                            <span id="settings-theme-label">🌙 Dark mode</span>
+                            <span class="settings-toggle-hint">Tap to switch</span>
+                        </button>
+                    </div>
+                    <div class="settings-section">
+                        <label class="settings-label">Message Sounds</label>
+                        <button id="btn-settings-sound" class="settings-toggle-row" type="button">
+                            <span id="settings-sound-label">🔊 Sounds on</span>
+                            <span class="settings-toggle-hint">Tap to toggle</span>
+                        </button>
+                    </div>
+                    <div class="settings-section">
+                        <label class="settings-label">About / Bio</label>
+                        <textarea id="settings-bio" class="settings-bio" placeholder="Write something about yourself..." rows="2"></textarea>
+                        <button id="btn-save-bio" class="btn-auth" style="padding:8px;font-size:0.82rem;margin-top:6px;">Save Bio</button>
+                    </div>
+                    <div class="settings-section">
+                        <label class="settings-label">Accent Color</label>
+                        <div class="color-picker-grid" id="color-picker-grid">
+                            <button class="color-dot" data-color="#6C63FF" style="background:#6C63FF;"></button>
+                            <button class="color-dot" data-color="#10b981" style="background:#10b981;"></button>
+                            <button class="color-dot" data-color="#f59e0b" style="background:#f59e0b;"></button>
+                            <button class="color-dot" data-color="#ef4444" style="background:#ef4444;"></button>
+                            <button class="color-dot" data-color="#ec4899" style="background:#ec4899;"></button>
+                            <button class="color-dot" data-color="#06b6d4" style="background:#06b6d4;"></button>
+                            <button class="color-dot" data-color="#8b5cf6" style="background:#8b5cf6;"></button>
+                            <button class="color-dot" data-color="#f97316" style="background:#f97316;"></button>
+                        </div>
+                    </div>
+                    <div class="settings-section hidden" id="admin-panel-section">
+                        <a href="admin.html" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;background:rgba(108,99,255,.15);color:#6C63FF;border:1px solid rgba(108,99,255,.35);border-radius:9px;font-size:.88rem;font-weight:700;text-decoration:none;">&#9881;&#65039; Open Admin Dashboard</a>
+                    </div>
+                    <div class="settings-section">
+                        <label class="settings-label">Wallpaper Presets</label>
+                        <div class="wallpaper-presets" id="wallpaper-presets">
+                            <div class="wp-preset" data-wp="none" style="background:var(--bg);border:1px solid var(--border);">None</div>
+                            <div class="wp-preset" data-wp="gradient1" style="background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);"></div>
+                            <div class="wp-preset" data-wp="gradient2" style="background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);"></div>
+                            <div class="wp-preset" data-wp="gradient3" style="background:linear-gradient(135deg,#1d1d3b,#2b1055,#4a0e4e);"></div>
+                            <div class="wp-preset" data-wp="gradient4" style="background:linear-gradient(135deg,#0a1628,#1a3a4a,#0d4a3a);"></div>
+                            <div class="wp-preset" data-wp="gradient5" style="background:linear-gradient(135deg,#2d1b00,#4a2600,#1a0a00);"></div>
+                            <div class="wp-preset" data-wp="gradient6" style="background:linear-gradient(135deg,#1a1a1a,#2d2d2d,#1a1a1a);"></div>
+                            <div class="wp-preset" data-wp="pattern1" style="background:repeating-linear-gradient(45deg,#16161d,#16161d 10px,#1a1a24 10px,#1a1a24 20px);"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Image Viewer ── -->
+        <div id="image-viewer" class="image-viewer hidden">
+            <button id="close-viewer" class="viewer-close">&times;</button>
+            <img id="viewer-img" alt="Full image">
+        </div>
+    </div>
+
+    <!-- ══════ WELCOME OVERLAY ══════ -->
+    <div id="welcome-overlay" class="welcome-overlay hidden">
+        <div class="welcome-card">
+            <div class="welcome-burst">🎉</div>
+            <img src="logo.svg" alt="B CHAT" class="welcome-logo">
+            <h2 class="welcome-title" id="welcome-title">Welcome to B CHAT!</h2>
+            <p class="welcome-sub" id="welcome-sub"></p>
+
+            <div class="welcome-code-box" id="welcome-code-box">
+                <span class="welcome-code-label">Your personal chat code</span>
+                <div class="welcome-code-row">
+                    <span class="welcome-code" id="welcome-code">0000</span>
+                    <button class="welcome-copy" id="welcome-copy" type="button">Copy</button>
+                </div>
+                <span class="welcome-code-hint">Share this so family &amp; friends can add you</span>
+            </div>
+
+            <ul class="welcome-tips">
+                <li><span>➕</span> Tap <b>New Chat</b> and enter a friend's 4-digit code to start chatting</li>
+                <li><span>📖</span> Open the <b>Guide</b> tab for a quick tour</li>
+                <li><span>🤖</span> Ask the built-in <b>AI</b> anything, anytime</li>
+            </ul>
+
+            <button class="btn-auth welcome-start" id="welcome-start" type="button">Get Started</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
