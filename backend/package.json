@@ -11,7 +11,7 @@
     "@supabase/supabase-js": "^2.31.0",
     "bcryptjs": "^2.4.3",
     "better-sqlite3": "^8.4.1",
-    "cors": "^2.8.8",
+    "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.19.2",
     "helmet": "^8.0.1",
