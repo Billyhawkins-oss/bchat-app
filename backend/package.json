@@ -3,14 +3,16 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "start": "node server.js",
-    "migrate-sqlite-to-supabase": "node scripts/migrate-sqlite-to-supabase.js"
+    "validate-env": "node scripts/validate-env.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.31.0",
     "bcryptjs": "^2.4.3",
-    "better-sqlite3": "^8.4.1",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.19.2",

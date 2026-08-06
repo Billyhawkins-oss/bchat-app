@@ -255,12 +255,12 @@ async function fetchUserPublicKey(username) {
 }
 
 // ── Supabase Client ──
-// Uses your existing Supabase project for authentication & data
-const SUPABASE_URL = 'https://kvcrlmfltbpnnjvrghtw.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_VIzSz8dD8xQMrrn1RuQgYw_W8Sn1rRE';
+// Uses the runtime configuration supplied by the frontend build or deployment.
+const SUPABASE_URL = window.__BCHAT_CONFIG__?.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = window.__BCHAT_CONFIG__?.SUPABASE_ANON_KEY || '';
 let sb = null;
 try {
-    if (window.supabase && window.supabase.createClient) {
+    if (window.supabase && window.supabase.createClient && SUPABASE_URL && SUPABASE_ANON_KEY) {
         sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
             auth: {
                 autoRefreshToken: true,
@@ -274,10 +274,8 @@ try {
     console.warn('Supabase init failed:', err);
 }
 
-// Express backend base URL (used when locally running the backend)
-const API_BASE_URL = (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    ? 'http://localhost:3000'
-    : '';
+// Express backend base URL (defaults to the configured production API endpoint)
+const API_BASE_URL = window.__BCHAT_CONFIG__?.API_BASE_URL || '';
 
 async function apiJson(path, options = {}) {
     const headers = { ...(options.headers || {}) };

@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -6,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { assertRequiredEnv, config } from './config.js';
 import {
   getAllUsers,
   getUserByUsername,
@@ -33,11 +33,34 @@ const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-change-me';
+const PORT = config.port;
+const JWT_SECRET = config.jwtSecret;
 
-app.use(helmet());
-app.use(cors({ origin: true, credentials: true }));
+assertRequiredEnv();
+
+app.disable('x-powered-by');
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", 'data:', 'https:'],
+      connectSrc: ["'self'", 'https:'],
+      objectSrc: ["'self'"],
+      baseUri: ["'self'"]
+    }
+  }
+}));
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    const allowed = config.allowedOrigins.includes(origin) || (config.frontendOrigin && origin === config.frontendOrigin);
+    if (allowed) return callback(null, true);
+    return callback(new Error(`Origin not allowed: ${origin}`));
+  },
+  credentials: true
+}));
 app.use(express.json({ limit: '2mb' }));
 
 function sanitizeUser(user) {
@@ -78,6 +101,10 @@ function sortedMessages(messages) {
 }
 
 app.get('/api/health', (_req, res) => {
+  res.json({ ok: true, service: 'bchat-backend' });
+});
+
+app.get('/health', (_req, res) => {
   res.json({ ok: true, service: 'bchat-backend' });
 });
 
@@ -286,16 +313,20 @@ app.post('/api/admin/messages', verifyToken, async (req, res) => {
 });
 
 app.post('/api/admin/create', async (req, res) => {
-  const existing = await getUserByUsername(String(req.body?.username || 'admin821').trim().toLowerCase());
+  const requestedUsername = String(req.body?.username || config.adminUsername).trim().toLowerCase();
+  const existing = await getUserByUsername(requestedUsername);
   if (existing) {
     return res.json({ user: sanitizeUser(existing) });
   }
+  if (!config.adminPassword) {
+    return res.status(500).json({ error: 'Admin bootstrap is disabled because ADMIN_PASSWORD was not configured.' });
+  }
   const users = await getAllUsers();
-  const passwordHash = await bcrypt.hash('bchat2011#', 12);
+  const passwordHash = await bcrypt.hash(config.adminPassword, 12);
   const user = {
     id: `user_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
-    username: 'admin821',
-    email: 'admin@bchat-app.netlify.app',
+    username: requestedUsername,
+    email: req.body?.email || `${requestedUsername}@bchat.local`,
     display_name: 'Admin',
     avatar: null,
     role: 'admin',
@@ -390,14 +421,18 @@ app.get('*', (_req, res) => {
 });
 
 async function seedAdminAccount() {
-  const existing = await getUserByUsername('admin821');
+  if (!config.adminPassword) {
+    console.log('Admin bootstrap skipped because ADMIN_PASSWORD is not configured.');
+    return;
+  }
+  const existing = await getUserByUsername(config.adminUsername);
   if (existing) return;
   const users = await getAllUsers();
-  const passwordHash = await bcrypt.hash('bchat2011#', 12);
+  const passwordHash = await bcrypt.hash(config.adminPassword, 12);
   const user = {
     id: `user_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
-    username: 'admin821',
-    email: 'admin@bchat-app.netlify.app',
+    username: config.adminUsername,
+    email: `${config.adminUsername}@bchat.local`,
     display_name: 'Admin',
     avatar: null,
     role: 'admin',
@@ -408,11 +443,22 @@ async function seedAdminAccount() {
     device_ids: []
   };
   await insertUser(user);
-  console.log('Default admin account seeded: username=admin821 password=bchat2011#');
+  console.log(`Admin account seeded for ${config.adminUsername}`);
 }
 
-seedAdminAccount().catch((err) => console.error('Failed to seed admin account:', err));
+async function startServer() {
+  await seedAdminAccount();
+  const server = app.listen(PORT, () => {
+    console.log(`B CHAT backend listening on http://localhost:${PORT}`);
+  });
 
-app.listen(PORT, () => {
-  console.log(`B CHAT backend listening on http://localhost:${PORT}`);
+  server.on('error', (error) => {
+    console.error('Failed to start server', error);
+    process.exit(1);
+  });
+}
+
+startServer().catch((err) => {
+  console.error('Failed to start server', err);
+  process.exit(1);
 });

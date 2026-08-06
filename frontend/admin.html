@@ -674,6 +674,7 @@ tbody tr:last-child td{border-bottom:none}
 
 <div class="toast-wrap" id="toasts"></div>
 
+<script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 /* ════════════════════════════════════════════════════════
@@ -681,11 +682,11 @@ tbody tr:last-child td{border-bottom:none}
    ════════════════════════════════════════════════════════ */
 
 // ── Config ──
-const SUPABASE_URL = 'https://kvcrlmfltbpnnjvrghtw.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_VIzSz8dD8xQMrrn1RuQgYw_W8Sn1rRE';
+const SUPABASE_URL = window.__BCHAT_CONFIG__?.SUPABASE_URL || '';
+const SUPABASE_KEY = window.__BCHAT_CONFIG__?.SUPABASE_ANON_KEY || '';
 const ADMIN_USERNAMES = ['admin'];
 
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const sb = SUPABASE_URL && SUPABASE_KEY ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 

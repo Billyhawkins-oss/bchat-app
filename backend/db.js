@@ -1,25 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
-import * as sqliteDb from './db-sqlite.js';
+import { supabase } from './config.js';
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const useSupabase = Boolean(SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY);
-
-const supabase = useSupabase
-  ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-        detectSessionInUrl: false
-      }
-    })
-  : null;
-
-if (useSupabase) {
-  console.log('Database: Supabase PostgreSQL');
-} else {
-  console.log('Database: SQLite fallback');
-}
+console.log('Database: Supabase PostgreSQL');
 
 function tryParseJson(value, fallback = null) {
   if (value === null || value === undefined || value === '') return fallback;
@@ -153,34 +134,29 @@ async function fromSupabase(table, queryBuilder) {
 }
 
 export async function getAllUsers() {
-  if (!useSupabase) return sqliteDb.getAllUsers();
   const data = await fromSupabase('users', (q) => q.select('*'));
   return data.map(normalizeUser);
 }
 
 export async function getUserByUsername(username) {
   if (!username) return null;
-  if (!useSupabase) return sqliteDb.getUserByUsername(username);
   const data = await fromSupabase('users', (q) => q.select('*').eq('username', username).maybeSingle());
   return normalizeUser(data);
 }
 
 export async function getUserByEmail(email) {
   if (!email) return null;
-  if (!useSupabase) return sqliteDb.getUserByEmail(email);
   const data = await fromSupabase('users', (q) => q.select('*').eq('email', email).maybeSingle());
   return normalizeUser(data);
 }
 
 export async function getUserByCode(code) {
   if (!code) return null;
-  if (!useSupabase) return sqliteDb.getUserByCode(code);
   const data = await fromSupabase('users', (q) => q.select('*').eq('code', code).maybeSingle());
   return normalizeUser(data);
 }
 
 export async function insertUser(user) {
-  if (!useSupabase) return sqliteDb.insertUser(user);
   const payload = convertUserInput(user);
   const { data, error } = await supabase.from('users').insert(payload).select().single();
   if (error) throw error;
@@ -188,7 +164,6 @@ export async function insertUser(user) {
 }
 
 export async function updateUserByUsername(username, fields) {
-  if (!useSupabase) return sqliteDb.updateUserByUsername(username, fields);
   if (!username || !fields || !Object.keys(fields).length) return null;
   const updatePayload = { ...fields };
   if (fields.security_questions) updatePayload.security_questions = fields.security_questions;
@@ -204,7 +179,6 @@ export async function updateUserByUsername(username, fields) {
 }
 
 export async function insertMessage(msg) {
-  if (!useSupabase) return sqliteDb.insertMessage(msg);
   const payload = convertMessageInput(msg);
   const { data, error } = await supabase.from('messages').insert(payload).select().single();
   if (error) throw error;
@@ -212,13 +186,11 @@ export async function insertMessage(msg) {
 }
 
 export async function getMessageById(id) {
-  if (!useSupabase) return sqliteDb.getMessageById(id);
   const data = await fromSupabase('messages', (q) => q.select('*').eq('id', id).maybeSingle());
   return normalizeMessage(data);
 }
 
 export async function getMessagesBetween(user1, user2, groupId) {
-  if (!useSupabase) return sqliteDb.getMessagesBetween(user1, user2, groupId);
   if (groupId) {
     const data = await fromSupabase('messages', (q) => q.select('*').eq('group_id', groupId).order('created_at'));
     return data.map(normalizeMessage);
@@ -230,14 +202,12 @@ export async function getMessagesBetween(user1, user2, groupId) {
 }
 
 export async function deleteMessageById(id) {
-  if (!useSupabase) return sqliteDb.deleteMessageById(id);
   const { error } = await supabase.from('messages').delete().eq('id', id);
   if (error) throw error;
-  return true;
+  return true;5
 }
 
 export async function markMessagesRead({ sender, receiver, groupId, username }) {
-  if (!useSupabase) return sqliteDb.markMessagesRead({ sender, receiver, groupId, username });
   if (groupId) {
     const { error } = await supabase
       .from('messages')
@@ -255,20 +225,17 @@ export async function markMessagesRead({ sender, receiver, groupId, username }) 
 }
 
 export async function getConversations(username) {
-  if (!useSupabase) return sqliteDb.getConversations(username);
   const orFilter = `sender.eq.${username},receiver.eq.${username},group_id.not.eq.null`;
   const data = await fromSupabase('messages', (q) => q.select('*').or(orFilter).order('created_at'));
   return data.map(normalizeMessage);
 }
 
 export async function getStatuses() {
-  if (!useSupabase) return sqliteDb.getStatuses();
   const data = await fromSupabase('statuses', (q) => q.select('*').order('time'));
   return data;
 }
 
 export async function insertStatus(status) {
-  if (!useSupabase) return sqliteDb.insertStatus(status);
   const payload = {
     id: status.id,
     username: status.username,
@@ -282,13 +249,11 @@ export async function insertStatus(status) {
 }
 
 export async function getAds() {
-  if (!useSupabase) return sqliteDb.getAds();
   const data = await fromSupabase('ads', (q) => q.select('*').order('time'));
   return data;
 }
 
 export async function insertAd(ad) {
-  if (!useSupabase) return sqliteDb.insertAd(ad);
   const payload = {
     id: ad.id,
     username: ad.username,
@@ -303,13 +268,11 @@ export async function insertAd(ad) {
 }
 
 export async function getGroups() {
-  if (!useSupabase) return sqliteDb.getGroups();
   const data = await fromSupabase('groups', (q) => q.select('*').order('created_at'));
   return data.map(normalizeGroup);
 }
 
 export async function insertGroup(group) {
-  if (!useSupabase) return sqliteDb.insertGroup(group);
   const payload = {
     id: group.id,
     title: group.title || 'New Group',
@@ -323,13 +286,11 @@ export async function insertGroup(group) {
 }
 
 export async function getNotifications() {
-  if (!useSupabase) return sqliteDb.getNotifications();
   const data = await fromSupabase('notifications', (q) => q.select('*').order('created_at'));
   return data;
 }
 
 export async function insertNotification(notification) {
-  if (!useSupabase) return sqliteDb.insertNotification(notification);
   const payload = {
     id: notification.id,
     title: notification.title || 'Notification',
