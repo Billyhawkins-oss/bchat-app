@@ -1,34 +1,68 @@
 # B CHAT
 
+## Overview
+
+B CHAT is a browser-based chat application with a static frontend and an Express backend. It supports user authentication, direct and group messaging, media attachments, status updates, ads, notifications, and optional Supabase PostgreSQL storage with SQLite fallback.
+
 ## Features
 
-- User authentication with signup and login
-- End-to-end encrypted messaging using RSA-OAEP and AES-GCM
-- Offline caching for messages and users
-- Rich chat UI with support for:
-  - text messages
-  - photo attachments
-  - voice messages
-  - group chats
-- AI assistant chat endpoint
+- User signup, login, and token-based authentication
+- Normal user and admin message handling
+- Direct chat and group chat support
+- Text messages, photo attachments, voice messages
+- Message reactions and message reply support
 - Status updates and ads
-- User presence and last-seen status
-- Supabase fallback support for auth and profile data
-- PWA-ready frontend with install prompt support
-- Admin dashboard endpoint and admin message handling
-- Local SQLite backend storage via `better-sqlite3` (planned)
+- Notifications endpoints
+- User presence tracking and last-seen status updates
+- Supabase PostgreSQL as primary database storage
+- SQLite fallback when Supabase env vars are not configured
 
 ## Project Structure
 
-- `index.html` — main frontend app shell
-- `app.js` — legacy frontend entrypoint
-- `js/` — modular frontend helpers and utilities
+- `index.html` — main frontend entrypoint
+- `admin.html` — admin dashboard page
+- `app.js` — frontend application logic
 - `go.css` — app styles
-- `backend/` — Express backend server and database code
-- `frontend/` — dedicated frontend folder for future static assets and build output
+- `backend/` — Express backend server and database adapter
+  - `backend/server.js` — API routes and auth logic
+  - `backend/db.js` — database adapter for Supabase and SQLite
+  - `backend/db-sqlite.js` — SQLite fallback implementation
+  - `backend/scripts/migrate-sqlite-to-supabase.js` — migration script for moving SQLite data into Supabase
+  - `backend/.env` — local environment variables for Supabase configuration
+- `supabase-schema.sql` — Supabase database schema and indexes
+
+## Setup
+
+1. Install backend dependencies:
+
+```bash
+cd backend
+npm install
+```
+
+2. Create `backend/.env` with your Supabase credentials:
+
+```env
+SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+```
+
+3. Start the backend server:
+
+```bash
+cd backend
+npm start
+```
+
+The backend will use Supabase when both `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are provided. When those env vars are missing, it falls back to local SQLite.
+
+## Backend scripts
+
+- `npm start` — starts the Express backend
+- `npm run migrate-sqlite-to-supabase` — migrates existing SQLite data into Supabase
 
 ## Notes
 
-- The backend currently uses Express and is designed to migrate from JSON file storage to SQLite.
-- Supabase is included as an optional cloud auth/data provider.
-- The `frontend/` folder is reserved for future build outputs or separate frontend packaging.
+- Do not commit `backend/.env` or other `.env` files to version control.
+- The backend serves the frontend as static files and exposes the API under `/api/*`.
+- Supabase is the intended production database, with SQLite kept only for local fallback/testing.
