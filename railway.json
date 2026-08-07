@@ -4,6 +4,6 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "cd backend && npm install && npm run validate-env && npm start"
+    "startCommand": "npm install && npm run validate-env && npm start"
   }
 }
