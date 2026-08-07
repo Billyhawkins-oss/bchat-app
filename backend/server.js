@@ -448,8 +448,8 @@ async function seedAdminAccount() {
 
 async function startServer() {
   await seedAdminAccount();
-  const server = app.listen(PORT, () => {
-    console.log(`B CHAT backend listening on http://localhost:${PORT}`);
+  const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`B CHAT backend listening on http://0.0.0.0:${PORT}`);
   });
 
   server.on('error', (error) => {
