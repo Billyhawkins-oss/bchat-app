@@ -436,10 +436,11 @@ app.use((err, _req, res, next) => {
 });
 
 const frontendDir = path.join(rootDir, 'frontend');
-if (existsSync(frontendDir)) {
+const frontendIndex = path.join(frontendDir, 'index.html');
+if (existsSync(frontendIndex)) {
   app.use(express.static(frontendDir));
   app.get('*', (_req, res) => {
-    res.sendFile(path.join(frontendDir, 'index.html'));
+    res.sendFile(frontendIndex);
   });
 } else {
   app.get('/', (_req, res) => {
