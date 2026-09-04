@@ -861,10 +861,10 @@ const emojiPicker = $('emoji-picker');
 const emojiGrid = $('emoji-grid');
 
 function showScreen(screen) {
-    loginScreen.classList.remove('active');
-    signupScreen.classList.remove('active');
-    appScreen.classList.remove('active');
-    screen.classList.add('active');
+    loginScreen?.classList.remove('active');
+    signupScreen?.classList.remove('active');
+    appScreen?.classList.remove('active');
+    screen?.classList.add('active');
     // Show the install button on every screen (repositioned on auth screens).
     if (installAvailable) showInstallButton();
     else hideInstallButton();
@@ -1007,7 +1007,6 @@ $('security-challenge-submit').addEventListener('click', async () => {
             return;
         }
         enterApp();
-        showWelcome(currentUser, false);
     } catch (err) {
         console.error('Security challenge error:', err);
         error.textContent = 'Verification failed. Please try again.';
@@ -1145,7 +1144,6 @@ $('login-form').addEventListener('submit', async (e) => {
             currentUser = cached;
             $('login-form').reset();
             enterApp();
-            showWelcome(cached, false);
             return;
         }
         error.textContent = 'You are offline. Connect to the internet to log in.';
@@ -1180,7 +1178,6 @@ $('login-form').addEventListener('submit', async (e) => {
                 return;
             }
             enterApp();
-            showWelcome(currentUser, false);
             return;
         } catch (backendErr) {
             console.warn('Backend login failed, trying Supabase fallback:', backendErr);
@@ -1252,7 +1249,6 @@ $('login-form').addEventListener('submit', async (e) => {
                         return;
                     }
                     enterApp();
-                    showWelcome(currentUser, false);
                     return;
                 }
 
@@ -1453,8 +1449,8 @@ $('signup-form').addEventListener('submit', async (e) => {
         setCurrentUser(currentUser);
         setStoredToken(data.token);
         try { await ensureE2EEKeys(username, startPassword); } catch(e) { console.warn('E2EE init on signup:', e); }
+        localStorage.setItem('bchat_show_welcome', '1');
         enterApp();
-        showWelcome(currentUser, true);
     } catch (err) {
         console.error('Signup error:', err);
         error.textContent = 'Error: ' + err.message;

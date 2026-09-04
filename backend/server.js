@@ -36,7 +36,11 @@ const app = express();
 const PORT = config.port;
 const JWT_SECRET = config.jwtSecret;
 
-assertRequiredEnv();
+try {
+  assertRequiredEnv();
+} catch (error) {
+  console.warn('Environment validation warning:', error.message);
+}
 
 app.disable('x-powered-by');
 app.use(helmet({
@@ -62,6 +66,12 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json({ limit: '2mb' }));
+
+function asyncHandler(handler) {
+  return (req, res, next) => {
+    Promise.resolve(handler(req, res, next)).catch(next);
+  };
+}
 
 function sanitizeUser(user) {
   if (!user) return null;
@@ -108,7 +118,7 @@ app.get('/health', (_req, res) => {
   res.json({ ok: true, service: 'bchat-backend' });
 });
 
-app.post('/api/auth/signup', async (req, res) => {
+app.post('/api/auth/signup', asyncHandler(async (req, res) => {
   const { username, password, email, display_name, avatar, security_questions, device_id } = req.body || {};
   if (!username || !password || !email || !display_name || !security_questions || !Array.isArray(security_questions)) {
     return res.status(400).json({ error: 'username, password, email, display_name and security_questions are required' });
@@ -144,9 +154,9 @@ app.post('/api/auth/signup', async (req, res) => {
   const saved = await insertUser(user);
   const token = createToken(saved);
   res.status(201).json({ token, user: sanitizeUser(saved) });
-});
+}));
 
-app.post('/api/auth/login', async (req, res) => {
+app.post('/api/auth/login', asyncHandler(async (req, res) => {
   const { username, password, device_id, security_answers } = req.body || {};
   if (!username || !password) {
     return res.status(400).json({ error: 'username and password are required' });
@@ -191,17 +201,17 @@ app.post('/api/auth/login', async (req, res) => {
 
   const token = createToken(user);
   res.json({ token, user: sanitizeUser(user) });
-});
+}));
 
-app.get('/api/me', verifyToken, async (req, res) => {
+app.get('/api/me', verifyToken, asyncHandler(async (req, res) => {
   const user = await getUserByUsername(req.user.username);
   if (!user) {
     return res.status(404).json({ error: 'User not found' });
   }
   res.json({ user: sanitizeUser(user) });
-});
+}));
 
-app.get('/api/users', verifyToken, async (req, res) => {
+app.get('/api/users', verifyToken, asyncHandler(async (req, res) => {
   const { code, username, email } = req.query;
   if (code) {
     const user = await getUserByCode(String(code));
@@ -218,9 +228,9 @@ app.get('/api/users', verifyToken, async (req, res) => {
 
   const users = (await getAllUsers()).map(sanitizeUser);
   res.json({ users });
-});
+}));
 
-app.post('/api/users/profile', verifyToken, async (req, res) => {
+app.post('/api/users/profile', verifyToken, asyncHandler(async (req, res) => {
   const { avatar, display_name } = req.body || {};
   const updates = {};
   if (avatar !== undefined) updates.avatar = avatar;
@@ -228,9 +238,9 @@ app.post('/api/users/profile', verifyToken, async (req, res) => {
   const user = await updateUserByUsername(req.user.username, updates);
   if (!user) return res.status(404).json({ error: 'User not found' });
   res.json({ user: sanitizeUser(user) });
-});
+}));
 
-app.post('/api/users/e2ee-key', verifyToken, async (req, res) => {
+app.post('/api/users/e2ee-key', verifyToken, asyncHandler(async (req, res) => {
   const { public_key } = req.body || {};
   if (!public_key) {
     return res.status(400).json({ error: 'public_key is required' });
@@ -238,9 +248,9 @@ app.post('/api/users/e2ee-key', verifyToken, async (req, res) => {
   const user = await updateUserByUsername(req.user.username, { e2ee_public_key: public_key });
   if (!user) return res.status(404).json({ error: 'User not found' });
   res.json({ ok: true });
-});
+}));
 
-app.post('/api/users/status', verifyToken, async (req, res) => {
+app.post('/api/users/status', verifyToken, asyncHandler(async (req, res) => {
   const { is_online, last_seen } = req.body || {};
   const updates = {};
   if (is_online !== undefined) updates.is_online = Boolean(is_online);
@@ -248,18 +258,18 @@ app.post('/api/users/status', verifyToken, async (req, res) => {
   const user = await updateUserByUsername(req.user.username, updates);
   if (!user) return res.status(404).json({ error: 'User not found' });
   res.json({ ok: true });
-});
+}));
 
-app.get('/api/messages', verifyToken, async (req, res) => {
+app.get('/api/messages', verifyToken, asyncHandler(async (req, res) => {
   const { user1, user2, groupId } = req.query;
   if (!groupId && (!user1 || !user2)) {
     return res.status(400).json({ error: 'user1 and user2 are required unless groupId is provided' });
   }
   const messages = await getMessagesBetween(user1, user2, groupId);
   res.json({ messages: sortedMessages(messages) });
-});
+}));
 
-app.post('/api/messages', verifyToken, async (req, res) => {
+app.post('/api/messages', verifyToken, asyncHandler(async (req, res) => {
   const msg = req.body || {};
   if (!msg.sender || (!msg.receiver && !msg.groupId)) {
     return res.status(400).json({ error: 'sender and receiver/groupId are required' });
@@ -273,23 +283,23 @@ app.post('/api/messages', verifyToken, async (req, res) => {
   };
   const stored = await insertMessage(entry);
   res.status(201).json({ message: stored });
-});
+}));
 
-app.post('/api/messages/delete', verifyToken, async (req, res) => {
+app.post('/api/messages/delete', verifyToken, asyncHandler(async (req, res) => {
   const { id } = req.body || {};
   if (!id) return res.status(400).json({ error: 'Message id is required' });
   await deleteMessageById(id);
   res.json({ ok: true });
-});
+}));
 
-app.post('/api/messages/read', verifyToken, async (req, res) => {
+app.post('/api/messages/read', verifyToken, asyncHandler(async (req, res) => {
   const { sender, receiver, groupId, username } = req.body || {};
   if (!username) return res.status(400).json({ error: 'username is required' });
   await markMessagesRead({ sender, receiver, groupId, username });
   res.json({ ok: true });
-});
+}));
 
-app.post('/api/admin/messages', verifyToken, async (req, res) => {
+app.post('/api/admin/messages', verifyToken, asyncHandler(async (req, res) => {
   const { text, sender, sender_name, email } = req.body || {};
   if (!text || !sender) {
     return res.status(400).json({ error: 'Message text and sender username are required' });
@@ -310,9 +320,9 @@ app.post('/api/admin/messages', verifyToken, async (req, res) => {
   };
   const stored = await insertMessage(entry);
   res.status(201).json({ message: stored });
-});
+}));
 
-app.post('/api/admin/create', async (req, res) => {
+app.post('/api/admin/create', asyncHandler(async (req, res) => {
   const requestedUsername = String(req.body?.username || config.adminUsername).trim().toLowerCase();
   const existing = await getUserByUsername(requestedUsername);
   if (existing) {
@@ -338,43 +348,43 @@ app.post('/api/admin/create', async (req, res) => {
   };
   const saved = await insertUser(user);
   res.status(201).json({ user: sanitizeUser(saved) });
-});
+}));
 
-app.get('/api/conversations', verifyToken, async (req, res) => {
+app.get('/api/conversations', verifyToken, asyncHandler(async (req, res) => {
   const { username } = req.query;
   if (!username) return res.status(400).json({ error: 'username is required' });
   const messages = await getConversations(username);
   res.json({ messages: sortedMessages(messages) });
-});
+}));
 
-app.get('/api/statuses', verifyToken, async (req, res) => {
+app.get('/api/statuses', verifyToken, asyncHandler(async (req, res) => {
   const statuses = await getStatuses();
   res.json({ statuses });
-});
+}));
 
-app.post('/api/statuses', verifyToken, async (req, res) => {
+app.post('/api/statuses', verifyToken, asyncHandler(async (req, res) => {
   const status = req.body || {};
   const saved = await insertStatus({ ...status, time: status.time || new Date().toISOString() });
   res.json({ status: saved });
-});
+}));
 
-app.get('/api/ads', verifyToken, async (req, res) => {
+app.get('/api/ads', verifyToken, asyncHandler(async (req, res) => {
   const ads = await getAds();
   res.json({ ads });
-});
+}));
 
-app.post('/api/ads', verifyToken, async (req, res) => {
+app.post('/api/ads', verifyToken, asyncHandler(async (req, res) => {
   const ad = req.body || {};
   const saved = await insertAd({ ...ad, time: ad.time || new Date().toISOString() });
   res.json({ ad: saved });
-});
+}));
 
-app.get('/api/groups', verifyToken, async (req, res) => {
+app.get('/api/groups', verifyToken, asyncHandler(async (req, res) => {
   const groups = await getGroups();
   res.json({ groups });
-});
+}));
 
-app.post('/api/groups', verifyToken, async (req, res) => {
+app.post('/api/groups', verifyToken, asyncHandler(async (req, res) => {
   const group = req.body || {};
   const saved = await insertGroup({
     id: group.id || `group_${Date.now()}`,
@@ -384,20 +394,20 @@ app.post('/api/groups', verifyToken, async (req, res) => {
     createdAt: new Date().toISOString()
   });
   res.status(201).json({ group: saved });
-});
+}));
 
-app.get('/api/notifications', verifyToken, async (req, res) => {
+app.get('/api/notifications', verifyToken, asyncHandler(async (req, res) => {
   const notifications = await getNotifications();
   res.json({ notifications });
-});
+}));
 
-app.post('/api/notifications', verifyToken, async (req, res) => {
+app.post('/api/notifications', verifyToken, asyncHandler(async (req, res) => {
   const notification = req.body || {};
   const saved = await insertNotification({ ...notification, created_at: notification.createdAt || new Date().toISOString() });
   res.status(201).json({ notification: saved });
-});
+}));
 
-app.post('/api/ai/chat', verifyToken, (req, res) => {
+app.post('/api/ai/chat', verifyToken, asyncHandler(async (req, res) => {
   const { messages = [] } = req.body || {};
   const last = Array.isArray(messages) ? messages[messages.length - 1]?.content || '' : '';
   if (!last) return res.status(400).json({ error: 'A message is required' });
@@ -412,6 +422,16 @@ app.post('/api/ai/chat', verifyToken, (req, res) => {
     return res.json({ reply: 'I can help with general advice, but I do not have live weather access from this backend.' });
   }
   return res.json({ reply: `Secure backend response: ${String(last).slice(0, 180)}` });
+}));
+
+app.use((err, _req, res, next) => {
+  if (res.headersSent) {
+    return next(err);
+  }
+  console.error('Request error:', err);
+  const status = err && typeof err.status === 'number' ? err.status : 500;
+  const message = err && err.message ? err.message : 'Internal server error';
+  res.status(status).json({ error: message });
 });
 
 const frontendDir = path.join(rootDir, 'frontend');
@@ -425,25 +445,30 @@ async function seedAdminAccount() {
     console.log('Admin bootstrap skipped because ADMIN_PASSWORD is not configured.');
     return;
   }
-  const existing = await getUserByUsername(config.adminUsername);
-  if (existing) return;
-  const users = await getAllUsers();
-  const passwordHash = await bcrypt.hash(config.adminPassword, 12);
-  const user = {
-    id: `user_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
-    username: config.adminUsername,
-    email: `${config.adminUsername}@bchat.local`,
-    display_name: 'Admin',
-    avatar: null,
-    role: 'admin',
-    code: generateCode(users),
-    createdAt: new Date().toISOString(),
-    passwordHash,
-    security_questions: [],
-    device_ids: []
-  };
-  await insertUser(user);
-  console.log(`Admin account seeded for ${config.adminUsername}`);
+
+  try {
+    const existing = await getUserByUsername(config.adminUsername);
+    if (existing) return;
+    const users = await getAllUsers();
+    const passwordHash = await bcrypt.hash(config.adminPassword, 12);
+    const user = {
+      id: `user_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+      username: config.adminUsername,
+      email: `${config.adminUsername}@bchat.local`,
+      display_name: 'Admin',
+      avatar: null,
+      role: 'admin',
+      code: generateCode(users),
+      createdAt: new Date().toISOString(),
+      passwordHash,
+      security_questions: [],
+      device_ids: []
+    };
+    await insertUser(user);
+    console.log(`Admin account seeded for ${config.adminUsername}`);
+  } catch (error) {
+    console.warn('Admin bootstrap skipped due to startup error:', error.message);
+  }
 }
 
 async function startServer() {

@@ -5,6 +5,7 @@
   },
   "deploy": {
     "rootDirectory": "backend",
-    "startCommand": "npm install && npm run validate-env && npm start"
+    "startCommand": "npm install && npm run validate-env && npm start",
+    "healthcheckPath": "/api/health"
   }
 }
