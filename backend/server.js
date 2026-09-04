@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import path from 'path';
+import { existsSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { assertRequiredEnv, config } from './config.js';
 import {
@@ -435,10 +436,16 @@ app.use((err, _req, res, next) => {
 });
 
 const frontendDir = path.join(rootDir, 'frontend');
-app.use(express.static(frontendDir));
-app.get('*', (_req, res) => {
-  res.sendFile(path.join(frontendDir, 'index.html'));
-});
+if (existsSync(frontendDir)) {
+  app.use(express.static(frontendDir));
+  app.get('*', (_req, res) => {
+    res.sendFile(path.join(frontendDir, 'index.html'));
+  });
+} else {
+  app.get('/', (_req, res) => {
+    res.json({ service: 'bchat-backend', status: 'ok' });
+  });
+}
 
 async function seedAdminAccount() {
   if (!config.adminPassword) {
