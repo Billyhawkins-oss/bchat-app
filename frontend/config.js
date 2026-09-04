@@ -1,6 +1,6 @@
 (function () {
   const defaults = {
-    API_BASE_URL: 'https://bchat-backend-production.up.railway.app',
+    API_BASE_URL: 'https://bchat-app-production.up.railway.app',
     SUPABASE_URL: 'https://kvcrlmfltbpnnjvrghtw.supabase.co',
     SUPABASE_ANON_KEY: 'sb_publishable_VIzSz8dD8xQMrrn1RuQgYw_W8Sn1rRE'
   };
