@@ -1720,8 +1720,84 @@ function bulkDeleteUsers(usernames){
   });
 }
 
+const viewMeta = {
+  overview: ['Overview', 'Real-time snapshot of your community'],
+  users: ['Users', 'Manage registered B CHAT members'],
+  messages: ['Messages', 'Review recent message activity'],
+  conversations: ['Conversations', 'Inspect a conversation between members'],
+  announcements: ['Announcements', 'Publish updates to the community'],
+  statuses: ['Statuses', 'Review active status updates'],
+  moderation: ['Moderation', 'Review messages requiring attention'],
+  audit: ['Audit Log', 'Review actions taken in this console'],
+  database: ['Database', 'Inspect Supabase data and storage estimates'],
+  settings: ['Settings', 'Configure the admin console']
+};
+
+function applyAdminTheme(theme) {
+  const nextTheme = theme === 'dark' ? 'dark' : 'light';
+  document.documentElement.dataset.theme = nextTheme;
+  localStorage.setItem('bchat_admin_theme', nextTheme);
+  $('#th-dark')?.classList.toggle('active', nextTheme === 'dark');
+  $('#th-light')?.classList.toggle('active', nextTheme === 'light');
+}
+
+function setAdminAutoRefresh(enabled) {
+  state.auto = Boolean(enabled);
+  localStorage.setItem('bchat_admin_auto', state.auto ? 'on' : 'off');
+  if (autoTimer) clearInterval(autoTimer);
+  autoTimer = state.auto ? setInterval(() => loadAll(), state.interval) : null;
+  $('#sw-auto')?.classList.toggle('on', state.auto);
+}
+
+function go(viewName) {
+  const view = viewMeta[viewName] ? viewName : 'overview';
+  $$('.nav-item').forEach(item => item.classList.toggle('active', item.dataset.view === view));
+  $$('.view').forEach(panel => panel.classList.toggle('active', panel.id === `view-${view}`));
+  const meta = viewMeta[view];
+  $('#pg-title').textContent = meta[0];
+  $('#pg-sub').textContent = meta[1];
+  $('#sidebar')?.classList.remove('open');
+}
+
+function initAdminControls() {
+  applyAdminTheme(localStorage.getItem('bchat_admin_theme') || 'light');
+  $('#btn-theme')?.addEventListener('click', () => {
+    applyAdminTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+  });
+  $('#th-dark')?.addEventListener('click', () => applyAdminTheme('dark'));
+  $('#th-light')?.addEventListener('click', () => applyAdminTheme('light'));
+
+  $$('.nav-item').forEach(item => item.addEventListener('click', () => go(item.dataset.view)));
+  $('#menu-toggle')?.addEventListener('click', () => $('#sidebar')?.classList.toggle('open'));
+  $('#btn-refresh')?.addEventListener('click', () => loadAll());
+  $('#set-refresh')?.addEventListener('click', () => loadAll());
+
+  const interval = $('#sel-interval');
+  if (interval) {
+    interval.value = String(state.interval);
+    interval.addEventListener('change', () => {
+      state.interval = Number(interval.value) || 30000;
+      localStorage.setItem('bchat_admin_interval', String(state.interval));
+      setAdminAutoRefresh(state.auto);
+    });
+  }
+  $('#sw-auto')?.addEventListener('click', () => setAdminAutoRefresh(!state.auto));
+  setAdminAutoRefresh(state.auto);
+
+  $('#global-search')?.addEventListener('input', event => {
+    state.usersQuery = event.target.value;
+    go('users');
+    renderUsers();
+  });
+  $('#set-logout')?.addEventListener('click', () => {
+    if (autoTimer) clearInterval(autoTimer);
+    window.location.href = 'index.html';
+  });
+}
+
 // Database action handlers
 document.addEventListener('DOMContentLoaded', async () => {
+  initAdminControls();
   $('#app').classList.remove('hidden');
   await loadAll();
 });
