@@ -4058,6 +4058,102 @@ body.light .image-viewer {
 .welcome-start { width: 100%; }
 
 /* ══════════════════════════════════
+   DASHBOARD ICON CONTRAST
+   ══════════════════════════════════ */
+.sidebar-actions .icon-btn,
+.chat-header-actions .icon-btn,
+.input-icon-btn {
+    border: 1px solid rgba(174, 207, 204, 0.26);
+    background: rgba(174, 207, 204, 0.1);
+    color: #c7dcda;
+}
+
+.sidebar-actions .icon-btn:hover,
+.sidebar-actions .icon-btn:focus-visible,
+.chat-header-actions .icon-btn:hover,
+.chat-header-actions .icon-btn:focus-visible,
+.input-icon-btn:hover,
+.input-icon-btn:focus-visible {
+    border-color: var(--primary-light);
+    background: rgba(184, 217, 74, 0.22);
+    color: var(--primary-light);
+}
+
+#btn-logout {
+    color: #ffaaa5;
+    border-color: rgba(255, 170, 165, 0.32);
+    background: rgba(255, 115, 115, 0.11);
+}
+
+#btn-logout:hover,
+#btn-logout:focus-visible {
+    color: #fff;
+    border-color: #ffaaa5;
+    background: rgba(196, 63, 76, 0.8);
+}
+
+.bottom-tab {
+    color: #a9c1c0;
+}
+
+.bottom-tab .tab-svg-icon {
+    width: 23px;
+    height: 23px;
+    color: currentColor;
+    stroke-width: 2;
+}
+
+.bottom-tab:hover {
+    color: #e1efeb;
+    background: rgba(174, 207, 204, 0.1);
+}
+
+.bottom-tab.active {
+    color: var(--primary-light);
+    background: rgba(184, 217, 74, 0.18);
+    box-shadow: inset 0 0 0 1px rgba(184, 217, 74, 0.24);
+}
+
+.online-tag,
+.my-code {
+    text-shadow: 0 0 12px rgba(94, 230, 174, 0.2);
+}
+
+body.light .sidebar-actions .icon-btn,
+body.light .chat-header-actions .icon-btn,
+body.light .input-icon-btn {
+    border-color: var(--border);
+    background: var(--bg-tertiary);
+    color: var(--text-2);
+}
+
+body.light #btn-logout {
+    color: #b52f3e;
+    border-color: rgba(181, 47, 62, 0.25);
+    background: rgba(181, 47, 62, 0.08);
+}
+
+body.light #btn-logout:hover,
+body.light #btn-logout:focus-visible {
+    color: #fff;
+    background: #b52f3e;
+}
+
+body.light .bottom-tab {
+    color: #5c7477;
+}
+
+body.light .bottom-tab:hover {
+    color: var(--text);
+    background: var(--bg-tertiary);
+}
+
+body.light .bottom-tab.active {
+    color: var(--primary-dark);
+    background: rgba(184, 217, 74, 0.23);
+}
+
+/* ══════════════════════════════════
    B CHAT DASHBOARD REFRESH
    ══════════════════════════════════ */
 :root {
