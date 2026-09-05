@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>B CHAT</title>
     <link rel="stylesheet" href="go.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="icon" href="logo.svg" type="image/svg+xml">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#6C63FF">
@@ -69,11 +70,11 @@
             <h1 class="auth-title">B CHAT</h1>
             <p class="auth-sub">Chat with family &amp; friends</p>
             <div class="auth-features">
-                <span class="auth-feature">💬 Chat</span>
-                <span class="auth-feature">🎙 Voice</span>
-                <span class="auth-feature">📞 Calls</span>
-                <span class="auth-feature">🤖 AI</span>
-                <span class="auth-feature">🔒 Private</span>
+                <span class="auth-feature"><i class="fa-solid fa-comments" aria-hidden="true"></i> Chat</span>
+                <span class="auth-feature"><i class="fa-solid fa-microphone" aria-hidden="true"></i> Voice</span>
+                <span class="auth-feature"><i class="fa-solid fa-phone" aria-hidden="true"></i> Calls</span>
+                <span class="auth-feature"><i class="fa-solid fa-robot" aria-hidden="true"></i> AI</span>
+                <span class="auth-feature"><i class="fa-solid fa-lock" aria-hidden="true"></i> Private</span>
             </div>
 
             <div class="auth-form-wrap">
@@ -224,10 +225,10 @@
                 <img src="logo.svg" alt="B CHAT" class="sidebar-logo">
                 <h2>B CHAT</h2>
                 <div class="sidebar-actions">
-                    <button id="btn-guide" class="icon-btn" title="Guide"><svg class="btn-icon"><use href="icons.svg#ic-tutorial"/></svg></button>
-                    <button id="btn-starred" class="icon-btn" title="Starred Messages"><svg class="btn-icon"><use href="icons.svg#ic-star"/></svg></button>
-                    <button id="btn-contact-admin" class="icon-btn" title="Contact Admin" style="color:var(--amber)"><svg class="btn-icon"><use href="icons.svg#ic-announcements"/></svg></button>
-                    <button id="btn-logout" class="icon-btn" title="Logout"><svg class="btn-icon"><use href="icons.svg#ic-logout"/></svg></button>
+                    <button id="btn-guide" class="icon-btn" title="Guide"><i class="fa-solid fa-book-open" aria-hidden="true"></i></button>
+                    <button id="btn-starred" class="icon-btn" title="Starred Messages"><i class="fa-solid fa-star" aria-hidden="true"></i></button>
+                    <button id="btn-contact-admin" class="icon-btn" title="Contact Admin" style="color:var(--amber)"><i class="fa-solid fa-bullhorn" aria-hidden="true"></i></button>
+                    <button id="btn-logout" class="icon-btn" title="Logout"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i></button>
                 </div>
             </div>
 
@@ -667,23 +668,23 @@
             <!-- ── Bottom Tab Bar ── -->
             <div class="bottom-tabs">
                 <button class="bottom-tab active" data-tab="tab-chats">
-                    <svg class="tab-svg-icon"><use href="icons.svg#ic-chats"/></svg>
+                    <i class="tab-fa-icon fa-solid fa-comments" aria-hidden="true"></i>
                     <span class="tab-label">Chats</span>
                 </button>
                 <button class="bottom-tab" data-tab="tab-status">
-                    <svg class="tab-svg-icon"><use href="icons.svg#ic-status"/></svg>
+                    <i class="tab-fa-icon fa-solid fa-circle-dot" aria-hidden="true"></i>
                     <span class="tab-label">Status</span>
                 </button>
                 <button class="bottom-tab" data-tab="tab-ads">
-                    <svg class="tab-svg-icon"><use href="icons.svg#ic-ads"/></svg>
+                    <i class="tab-fa-icon fa-solid fa-bullhorn" aria-hidden="true"></i>
                     <span class="tab-label">Ads</span>
                 </button>
                 <button class="bottom-tab" data-tab="tab-ai">
-                    <svg class="tab-svg-icon"><use href="icons.svg#ic-ai"/></svg>
+                    <i class="tab-fa-icon fa-solid fa-robot" aria-hidden="true"></i>
                     <span class="tab-label">AI</span>
                 </button>
                 <button class="bottom-tab" data-tab="tab-calls">
-                    <svg class="tab-svg-icon"><use href="icons.svg#ic-phone"/></svg>
+                    <i class="tab-fa-icon fa-solid fa-phone" aria-hidden="true"></i>
                     <span class="tab-label">Calls</span>
                 </button>
             </div>

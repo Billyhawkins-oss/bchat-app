@@ -277,6 +277,18 @@ body {
     border-radius: 20px;
 }
 
+.auth-feature i,
+.tab-fa-icon,
+.sidebar-actions .icon-btn i {
+    display: inline-block;
+    width: 1.1em;
+    text-align: center;
+}
+
+.auth-feature i {
+    margin-right: 4px;
+}
+
 .btn-install-inline {
     margin-top: 16px;
     width: 100%;
@@ -4101,6 +4113,14 @@ body.light .image-viewer {
     height: 23px;
     color: currentColor;
     stroke-width: 2;
+}
+
+.bottom-tab .tab-fa-icon {
+    width: 23px;
+    height: 23px;
+    display: grid;
+    place-items: center;
+    font-size: 20px;
 }
 
 .bottom-tab:hover {
