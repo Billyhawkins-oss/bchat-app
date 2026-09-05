@@ -380,7 +380,8 @@ async function syncPendingMessages() {
     const stillPending = [];
     for (const message of pending) {
         try {
-            const data = await apiJson('/api/messages', { method: 'POST', body: JSON.stringify(message) });
+            const { decryptedText, ...networkMessage } = message;
+            const data = await apiJson('/api/messages', { method: 'POST', body: JSON.stringify(networkMessage) });
             const synced = data?.message || message;
             persistMessageToLocalCaches({ ...synced, pending: false });
             removePendingMessage(message.id);
@@ -680,6 +681,18 @@ async function getUsers() {
     }
 }
 
+function preserveLocalDisplayText(serverMessages, cachedMessages) {
+    const localTextById = new Map(
+        cachedMessages
+            .filter((message) => message.id && message.decryptedText)
+            .map((message) => [message.id, message.decryptedText])
+    );
+    return serverMessages.map((message) => localTextById.has(message.id)
+        ? { ...message, decryptedText: localTextById.get(message.id) }
+        : message
+    );
+}
+
 async function getMessages(user1, user2) {
     const cacheKey = getConversationKey(user1, user2);
     const cached = JSON.parse(localStorage.getItem(cacheKey) || '[]');
@@ -693,7 +706,8 @@ async function getMessages(user1, user2) {
 
     try {
         const data = await apiJson(`/api/messages?user1=${encodeURIComponent(user1)}&user2=${encodeURIComponent(user2)}`);
-        const msgs = mergeConversationMessages(data?.messages || [], pending);
+        const serverMessages = preserveLocalDisplayText(data?.messages || [], cached);
+        const msgs = mergeConversationMessages(serverMessages, pending);
         localStorage.setItem(cacheKey, JSON.stringify(msgs));
         return msgs;
     } catch (err) {
@@ -714,7 +728,8 @@ async function getConversationMessages(username) {
 
     try {
         const data = await apiJson(`/api/conversations?username=${encodeURIComponent(username)}`);
-        const msgs = mergeConversationMessages(data?.messages || [], pending);
+        const serverMessages = preserveLocalDisplayText(data?.messages || [], cached);
+        const msgs = mergeConversationMessages(serverMessages, pending);
         localStorage.setItem('bchat_all_msgs_cache', JSON.stringify(msgs));
         return msgs;
     } catch (err) {
@@ -2213,7 +2228,13 @@ async function addMessageToChat(msg) {
         }
     }
     
-    const entry = persistMessageToLocalCaches({ ...processedMsg, id: msg.id || `local_${Date.now()}_${Math.random().toString(36).slice(2)}`, pending: true, created_at: msg.created_at || new Date().toISOString() });
+    const entry = persistMessageToLocalCaches({
+        ...processedMsg,
+        decryptedText: msg.type === 'text' ? msg.text : undefined,
+        id: msg.id || `local_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+        pending: true,
+        created_at: msg.created_at || new Date().toISOString()
+    });
     addPendingMessage(entry);
     if (!navigator.onLine) {
         showToast('Message saved locally and will sync when you are back online.', 'info', 2600);
@@ -2224,7 +2245,8 @@ async function addMessageToChat(msg) {
     }
 
     try {
-        const data = await apiJson('/api/messages', { method: 'POST', body: JSON.stringify(entry) });
+        const { decryptedText, ...networkEntry } = entry;
+        const data = await apiJson('/api/messages', { method: 'POST', body: JSON.stringify(networkEntry) });
         const synced = data?.message || entry;
         persistMessageToLocalCaches({ ...synced, pending: false });
         removePendingMessage(entry.id);
