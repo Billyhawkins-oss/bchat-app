@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bchat-v5';
+const CACHE_NAME = 'bchat-v6';
 const ASSETS = [
     '/index.html',
     '/go.css',
