@@ -1974,20 +1974,19 @@ async function openChat(otherUsername) {
 
     replyToMsg = null;
     $('reply-bar').classList.add('hidden');
-    markAsRead(otherUsername);
+    await markAsRead(otherUsername);
     renderMessages();
     applyChatBackground();
     renderChatList();
     msgInput.focus();
 }
 
-function markAsRead(otherUsername) {
-    const chat = findChat(currentUser.username, otherUsername);
-    if (chat) {
-        const rc = getReadCounts();
-        rc[otherUsername] = chat.messages.length;
-        saveReadCounts(rc);
-    }
+async function markAsRead(otherUsername) {
+    const messages = await getMessages(currentUser.username, otherUsername);
+    const rc = getReadCounts();
+    rc[otherUsername] = messages.length;
+    saveReadCounts(rc);
+    updateTabBadge(0);
     if (navigator.onLine) {
         apiJson('/api/messages/read', {
             method: 'POST',
