@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <symbol id="ic-tutorial" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5V5.5Z"/><path d="M4 5.5V19a2 2 0 0 0 2 2h14M8 7h8M8 11h8"/></symbol>
+    <symbol id="ic-star" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z"/></symbol>
+    <symbol id="ic-announcements" viewBox="0 0 24 24"><path d="m4 11 16-6v14L4 14v-3Z"/><path d="M8 15.5 9.5 20M4 11v3"/></symbol>
+    <symbol id="ic-logout" viewBox="0 0 24 24"><path d="M10 5H5v14h5M14 8l4 4-4 4M18 12H9"/></symbol>
+    <symbol id="ic-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 14h10l1-14M9 7V4h6v3"/></symbol>
+    <symbol id="ic-send" viewBox="0 0 24 24"><path d="m3 11 18-8-8 18-2.5-7.5L3 11Z"/><path d="M10.5 13.5 21 3"/></symbol>
+    <symbol id="ic-pause" viewBox="0 0 24 24"><path d="M7 5v14M17 5v14"/></symbol>
+    <symbol id="ic-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7V5Z"/></symbol>
+    <symbol id="ic-chats" viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-8 7.5 8.5 8.5 0 0 1-4-.9L4 20l1.8-3.4A7.2 7.2 0 0 1 4.5 12 7.5 7.5 0 0 1 12 4.5h.5A7.5 7.5 0 0 1 20 11.5Z"/><path d="M8 12h.01M12 12h.01M16 12h.01"/></symbol>
+    <symbol id="ic-status" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/></symbol>
+    <symbol id="ic-ads" viewBox="0 0 24 24"><path d="m4 11 16-6v14L4 14v-3Z"/><path d="M8 15.5 9.5 20"/></symbol>
+    <symbol id="ic-ai" viewBox="0 0 24 24"><path d="M9 3v3M15 3v3M6 9H3M21 9h-3M7 6h10a3 3 0 0 1 3 3v5a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V9a3 3 0 0 1 3-3Z"/><path d="M8 21h8M12 17v4M9 11h.01M15 11h.01"/></symbol>
+    <symbol id="ic-phone" viewBox="0 0 24 24"><path d="M6.5 4.5 9 4l2 5-2 1.5a14 14 0 0 0 4.5 4.5L15 13l5 2 .5 2.5A2 2 0 0 1 18.5 20C10.5 19.5 4.5 13.5 4 5.5A2 2 0 0 1 6.5 4.5Z"/></symbol>
+    <symbol id="ic-back" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7M8 12h13"/></symbol>
+    <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m16 16 5 5"/></symbol>
+    <symbol id="ic-video" viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3"/></symbol>
+    <symbol id="ic-palette" viewBox="0 0 24 24"><path d="M12 4a8 8 0 0 0 0 16h1.5a1.5 1.5 0 0 0 0-3H12a2 2 0 0 1 0-4h2a6 6 0 0 0 0-12Z"/><path d="M7.5 10h.01M9 7h.01M14 7h.01M17 10h.01"/></symbol>
+    <symbol id="ic-smile" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 14.5a4.5 4.5 0 0 0 7 0M9 10h.01M15 10h.01"/></symbol>
+    <symbol id="ic-camera" viewBox="0 0 24 24"><path d="M4 7h3l1.5-2h7L17 7h3v12H4V7Z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+    <symbol id="ic-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4M9 21h6"/></symbol>
+    <symbol id="ic-flip" viewBox="0 0 24 24"><path d="M7 7H3v4M17 17h4v-4M3 11a9 9 0 0 1 15-6M21 13a9 9 0 0 1-15 6"/></symbol>
+  </defs>
+</svg>
