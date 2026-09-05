@@ -178,7 +178,7 @@ app.post('/api/auth/login', asyncHandler(async (req, res) => {
   const incomingDevice = device_id ? String(device_id).trim() : null;
   const isKnownDevice = incomingDevice && knownIds.includes(incomingDevice);
 
-  if (!isKnownDevice) {
+  if (!isKnownDevice && user.role !== 'admin') {
     if (!security_answers || !Array.isArray(security_answers) || security_answers.length < 4) {
       return res.status(403).json({
         error: 'New device detected. Please answer your security questions.',
