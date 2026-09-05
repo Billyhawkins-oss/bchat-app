@@ -1574,6 +1574,10 @@ function bulkDeleteUsers(usernames){
 }
 
 // Database action handlers
+document.addEventListener('DOMContentLoaded', async () => {
+  $('#app').classList.remove('hidden');
+  await loadAll();
+});
 </script>
 </body>
 </html>
