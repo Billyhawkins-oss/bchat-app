@@ -242,16 +242,6 @@ app.post('/api/users/profile', verifyToken, asyncHandler(async (req, res) => {
   res.json({ user: sanitizeUser(user) });
 }));
 
-app.post('/api/users/e2ee-key', verifyToken, asyncHandler(async (req, res) => {
-  const { public_key } = req.body || {};
-  if (!public_key) {
-    return res.status(400).json({ error: 'public_key is required' });
-  }
-  const user = await updateUserByUsername(req.user.username, { e2ee_public_key: public_key });
-  if (!user) return res.status(404).json({ error: 'User not found' });
-  res.json({ ok: true });
-}));
-
 app.post('/api/users/status', verifyToken, asyncHandler(async (req, res) => {
   const { is_online, last_seen } = req.body || {};
   const updates = {};

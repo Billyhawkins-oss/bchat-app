@@ -17,7 +17,6 @@ create table if not exists public.users (
   password_hash text not null,
   is_online boolean not null default false,
   last_seen timestamptz,
-  e2ee_public_key text,
   security_questions jsonb not null default '[]',
   device_ids jsonb not null default '[]',
   bio text not null default ''

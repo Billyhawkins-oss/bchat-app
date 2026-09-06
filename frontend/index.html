@@ -712,12 +712,9 @@
                         </div>
                     </div>
                     <button id="btn-search-msgs" class="icon-btn" title="Search Messages"><svg class="btn-icon"><use href="icons.svg#ic-search"/></svg></button>
-                    <button id="btn-media-gallery" class="icon-btn" title="Shared Media">&#128444;</button>
                     <button id="btn-voice-call" class="icon-btn" title="Voice Call"><svg class="btn-icon"><use href="icons.svg#ic-phone"/></svg></button>
                     <button id="btn-video-call" class="icon-btn" title="Video Call"><svg class="btn-icon"><use href="icons.svg#ic-video"/></svg></button>
-                    <button id="btn-chat-bg" class="icon-btn" title="Change Background"><svg class="btn-icon"><use href="icons.svg#ic-palette"/></svg></button>
                     <button id="btn-chat-more" class="icon-btn" title="More options">⋯</button>
-                    <button id="btn-rename-contact" class="icon-btn" title="Rename this contact" style="font-size:16px;">✎</button>
                 </div>
 
                 <div id="msg-search-bar" class="msg-search-bar hidden">
@@ -775,6 +772,9 @@
         </div>
 
         <div id="chat-actions-menu" class="chat-actions-menu hidden">
+            <button id="btn-media-gallery" class="chat-action-btn" data-action="media">Shared media</button>
+            <button id="btn-chat-bg" class="chat-action-btn" data-action="background">Change background</button>
+            <button id="btn-rename-contact" class="chat-action-btn" data-action="rename">Rename contact</button>
             <button class="chat-action-btn" data-action="archive">Archive chat</button>
             <button class="chat-action-btn" data-action="lock">Lock chat</button>
             <button class="chat-action-btn" data-action="password">Set lock password</button>

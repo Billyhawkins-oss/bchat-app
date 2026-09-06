@@ -1,5 +1,4 @@
 let cachedUser = null;
-const E2EE_KEY_STORAGE_PREFIX = 'bchat_e2ee_';
 
 function currentUsername() {
   const user = getCurrentUser();
@@ -171,18 +170,3 @@ export function findChat(username, otherUsername) {
   return chats.find(c => c.participants.includes(username) && c.participants.includes(otherUsername));
 }
 
-export function getE2EEKey(username) {
-  const raw = localStorage.getItem(E2EE_KEY_STORAGE_PREFIX + username);
-  if (!raw) return null;
-  try { return JSON.parse(raw); } catch { return null; }
-}
-
-export function saveE2EEKey(username, keyData) {
-  localStorage.setItem(E2EE_KEY_STORAGE_PREFIX + username, JSON.stringify(keyData));
-}
-
-export function clearE2EEKeys() {
-  Object.keys(localStorage)
-    .filter(k => k.startsWith(E2EE_KEY_STORAGE_PREFIX))
-    .forEach(k => localStorage.removeItem(k));
-}

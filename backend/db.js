@@ -49,7 +49,6 @@ function normalizeUser(user) {
     passwordHash: user.password_hash || user.passwordHash,
     is_online: Boolean(user.is_online),
     last_seen: user.last_seen,
-    e2ee_public_key: user.e2ee_public_key || user.e2ee_public_key,
     security_questions: Array.isArray(user.security_questions)
       ? user.security_questions
       : tryParseJson(user.security_questions, []),
@@ -94,7 +93,6 @@ function convertUserInput(user) {
     password_hash: user.passwordHash || user.password_hash,
     is_online: Boolean(user.is_online),
     last_seen: user.last_seen || null,
-    e2ee_public_key: user.e2ee_public_key || null,
     security_questions: user.security_questions || [],
     device_ids: user.device_ids || [],
     bio: user.bio || ''

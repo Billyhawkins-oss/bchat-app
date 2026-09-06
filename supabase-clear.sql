@@ -1,10 +1,10 @@
 -- ═══════════════════════════════════════════════════════
 -- B CHAT — Clear all user data (users + messages + statuses)
 -- Run this in your Supabase SQL Editor to wipe the database
--- so users can sign up fresh with E2EE keys.
+-- so users can sign up fresh during development.
 -- ═══════════════════════════════════════════════════════
 
--- WARNING: This deletes ALL data permanently!
+-- WARNING: This deletes ALL data permanently! and cannot be undone. Make sure you have backups if needed.
 
 -- 1. Delete all messages
 DELETE FROM messages;

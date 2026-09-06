@@ -24,7 +24,6 @@ function initDb() {
       password_hash TEXT NOT NULL,
       is_online INTEGER DEFAULT 0,
       last_seen TEXT,
-      e2ee_public_key TEXT,
       security_questions TEXT DEFAULT '[]',
       device_ids TEXT DEFAULT '[]',
       bio TEXT DEFAULT ''
@@ -119,7 +118,6 @@ function normalizeUser(user) {
     passwordHash: user.password_hash,
     is_online: Boolean(user.is_online),
     last_seen: user.last_seen,
-    e2ee_public_key: user.e2ee_public_key,
     security_questions: safeParseJson(user.security_questions, []),
     device_ids: safeParseJson(user.device_ids, []),
     bio: user.bio || ''
@@ -147,8 +145,8 @@ export async function getUserByCode(code) {
 
 export async function insertUser(user) {
   const stmt = db.prepare(`
-    INSERT INTO users (id, username, email, display_name, avatar, role, code, created_at, password_hash, is_online, last_seen, e2ee_public_key, security_questions, device_ids, bio)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO users (id, username, email, display_name, avatar, role, code, created_at, password_hash, is_online, last_seen, security_questions, device_ids, bio)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   stmt.run(
     user.id,
@@ -162,7 +160,6 @@ export async function insertUser(user) {
     user.passwordHash,
     user.is_online ? 1 : 0,
     user.last_seen || null,
-    user.e2ee_public_key || null,
     JSON.stringify(user.security_questions || []),
     JSON.stringify(user.device_ids || []),
     user.bio || ''

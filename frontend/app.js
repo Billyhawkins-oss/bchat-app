@@ -1,259 +1,11 @@
 // ═══════════════════════════════════════════
-// B CHAT — Local-first app with End-to-End Encryption
+// B CHAT — Local-first app
 // ═══════════════════════════════════════════
 
 const $ = (id) => document.getElementById(id);
 
-// ═══════════════════════════════════════════
-// E2EE — End-to-End Encryption
-// ═══════════════════════════════════════════
-// Messages are encrypted client-side before leaving the device.
-// Even the server, database, and admin CANNOT read them.
-// Only the sender and the intended receiver can decrypt.
-// ═══════════════════════════════════════════
-
-const E2EE_KEY_STORAGE_PREFIX = 'bchat_e2ee_';
-
-function getE2EEKey(username) {
-  const raw = localStorage.getItem(E2EE_KEY_STORAGE_PREFIX + username);
-  if (!raw) return null;
-  try { return JSON.parse(raw); } catch { return null; }
-}
-
-function saveE2EEKey(username, keyData) {
-  localStorage.setItem(E2EE_KEY_STORAGE_PREFIX + username, JSON.stringify(keyData));
-}
-
-function clearE2EEKeys() {
-  Object.keys(localStorage)
-    .filter(k => k.startsWith(E2EE_KEY_STORAGE_PREFIX))
-    .forEach(k => localStorage.removeItem(k));
-}
 
 // Generate an RSA-OAEP key pair for the user
-async function generateE2EEKeyPair() {
-  const keyPair = await crypto.subtle.generateKey(
-    {
-      name: 'RSA-OAEP',
-      modulusLength: 2048,
-      publicExponent: new Uint8Array([1, 0, 1]),
-      hash: 'SHA-256',
-    },
-    true,
-    ['encrypt', 'decrypt']
-  );
-  return keyPair;
-}
-
-// Export public key to base64 string for storage/sharing
-async function exportPublicKey(publicKey) {
-  const raw = await crypto.subtle.exportKey('spki', publicKey);
-  return btoa(String.fromCharCode(...new Uint8Array(raw)));
-}
-
-// Export private key encrypted with a password-derived key
-async function exportEncryptedPrivateKey(privateKey, password) {
-  // Derive a 256-bit AES key from the password using PBKDF2
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-  const iterations = 100000;
-  const pwKey = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
-  const aesKey = await crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt, iterations, hash: 'SHA-256' },
-    pwKey,
-    { name: 'AES-GCM', length: 256 },
-    true,
-    ['encrypt', 'decrypt']
-  );
-
-  // Export private key as PKCS8
-  const privateKeyRaw = await crypto.subtle.exportKey('pkcs8', privateKey);
-
-  // Encrypt with AES-GCM
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-  const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, aesKey, privateKeyRaw);
-
-  // Package: salt + iv + encrypted data
-  const combined = new Uint8Array(salt.length + iv.length + encrypted.byteLength);
-  combined.set(salt, 0);
-  combined.set(iv, salt.length);
-  combined.set(new Uint8Array(encrypted), salt.length + iv.length);
-
-  return btoa(String.fromCharCode(...combined));
-}
-
-// Import private key from encrypted storage using password
-async function importEncryptedPrivateKey(encryptedB64, password) {
-  try {
-    const combined = Uint8Array.from(atob(encryptedB64), c => c.charCodeAt(0));
-    const salt = combined.slice(0, 16);
-    const iv = combined.slice(16, 28);
-    const encryptedData = combined.slice(28);
-
-    // Re-derive AES key from password
-    const pwKey = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
-    const aesKey = await crypto.subtle.deriveKey(
-      { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
-      pwKey,
-      { name: 'AES-GCM', length: 256 },
-      true,
-      ['decrypt']
-    );
-
-    // Decrypt
-    const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, aesKey, encryptedData);
-
-    // Import as private key
-    return await crypto.subtle.importKey('pkcs8', decrypted, { name: 'RSA-OAEP', hash: 'SHA-256' }, true, ['decrypt']);
-  } catch (e) {
-    console.error('Failed to decrypt private key:', e);
-    return null;
-  }
-}
-
-// Import a public key from base64 SPKI format
-async function importPublicKey(publicKeyB64) {
-  try {
-    const raw = Uint8Array.from(atob(publicKeyB64), c => c.charCodeAt(0));
-    return await crypto.subtle.importKey('spki', raw, { name: 'RSA-OAEP', hash: 'SHA-256' }, true, ['encrypt']);
-  } catch (e) {
-    console.error('Failed to import public key:', e);
-    return null;
-  }
-}
-
-// Encrypt a message for a specific receiver
-async function e2eeEncrypt(plaintext, receiverPublicKeyB64) {
-  if (!receiverPublicKeyB64) return null; // cannot encrypt
-
-  // Generate a one-time AES-GCM symmetric key
-  const symKey = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt']);
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-
-  // Encrypt the plaintext with the symmetric key
-  const encoded = new TextEncoder().encode(plaintext);
-  const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, symKey, encoded);
-
-  // Export and encrypt the symmetric key with the receiver's RSA public key
-  const symKeyRaw = await crypto.subtle.exportKey('raw', symKey);
-  const pubKey = await importPublicKey(receiverPublicKeyB64);
-  if (!pubKey) return null;
-  const encryptedSymKey = await crypto.subtle.encrypt({ name: 'RSA-OAEP' }, pubKey, symKeyRaw);
-
-  return {
-    ct: btoa(String.fromCharCode(...new Uint8Array(ciphertext))),
-    iv: btoa(String.fromCharCode(...iv)),
-    ek: btoa(String.fromCharCode(...new Uint8Array(encryptedSymKey))),
-  };
-}
-
-// Decrypt a message using the user's private key
-async function e2eeDecrypt(packet, privateKey) {
-  if (!packet || !packet.ct || !packet.iv || !packet.ek) return null;
-  try {
-    const ciphertext = Uint8Array.from(atob(packet.ct), c => c.charCodeAt(0));
-    const iv = Uint8Array.from(atob(packet.iv), c => c.charCodeAt(0));
-    const encryptedSymKey = Uint8Array.from(atob(packet.ek), c => c.charCodeAt(0));
-
-    // Decrypt the symmetric key with the private key
-    const symKeyRaw = await crypto.subtle.decrypt({ name: 'RSA-OAEP' }, privateKey, encryptedSymKey);
-    const symKey = await crypto.subtle.importKey('raw', symKeyRaw, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
-
-    // Decrypt the message
-    const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, symKey, ciphertext);
-    return new TextDecoder().decode(decrypted);
-  } catch (e) {
-    console.error('E2EE decrypt failed:', e);
-    return null;
-  }
-}
-
-// Encrypt a binary/photo as base64 using a one-time AES-GCM key
-async function e2eeEncryptBinary(dataB64, receiverPublicKeyB64) {
-  if (!receiverPublicKeyB64) return null;
-  const raw = Uint8Array.from(atob(dataB64), c => c.charCodeAt(0));
-  const symKey = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt']);
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-  const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, symKey, raw);
-  const symKeyRaw = await crypto.subtle.exportKey('raw', symKey);
-  const pubKey = await importPublicKey(receiverPublicKeyB64);
-  if (!pubKey) return null;
-  const encryptedSymKey = await crypto.subtle.encrypt({ name: 'RSA-OAEP' }, pubKey, symKeyRaw);
-  return {
-    ct: btoa(String.fromCharCode(...new Uint8Array(ciphertext))),
-    iv: btoa(String.fromCharCode(...iv)),
-    ek: btoa(String.fromCharCode(...new Uint8Array(encryptedSymKey))),
-  };
-}
-
-async function e2eeDecryptBinary(packet, privateKey) {
-  if (!packet || !packet.ct || !packet.iv || !packet.ek) return null;
-  try {
-    const ciphertext = Uint8Array.from(atob(packet.ct), c => c.charCodeAt(0));
-    const iv = Uint8Array.from(atob(packet.iv), c => c.charCodeAt(0));
-    const encryptedSymKey = Uint8Array.from(atob(packet.ek), c => c.charCodeAt(0));
-    const symKeyRaw = await crypto.subtle.decrypt({ name: 'RSA-OAEP' }, privateKey, encryptedSymKey);
-    const symKey = await crypto.subtle.importKey('raw', symKeyRaw, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
-    const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, symKey, ciphertext);
-    return btoa(String.fromCharCode(...new Uint8Array(decrypted)));
-  } catch (e) {
-    console.error('E2EE binary decrypt failed:', e);
-    return null;
-  }
-}
-
-// Get or create E2EE keys for the current user
-let _e2eePrivateKey = null;
-
-async function ensureE2EEKeys(username, password) {
-  const stored = getE2EEKey(username);
-  if (stored && stored.encryptedPrivateKey && stored.publicKey) {
-    // Try to decrypt the private key
-    _e2eePrivateKey = await importEncryptedPrivateKey(stored.encryptedPrivateKey, password);
-    if (_e2eePrivateKey) {
-      return { publicKey: stored.publicKey, privateKey: _e2eePrivateKey };
-    }
-    // If decryption fails, password might have changed — regenerate
-    console.warn('E2EE: Failed to decrypt private key, generating new pair');
-  }
-
-  // Generate new key pair
-  const keyPair = await generateE2EEKeyPair();
-  const publicKeyB64 = await exportPublicKey(keyPair.publicKey);
-  const encryptedPrivateKey = await exportEncryptedPrivateKey(keyPair.privateKey, password);
-
-  saveE2EEKey(username, {
-    publicKey: publicKeyB64,
-    encryptedPrivateKey: encryptedPrivateKey,
-  });
-
-  _e2eePrivateKey = keyPair.privateKey;
-
-  // Upload public key to backend
-  try {
-    await apiJson('/api/users/e2ee-key', {
-      method: 'POST',
-      body: JSON.stringify({ public_key: publicKeyB64 })
-    });
-  } catch (e) {
-    console.warn('Failed to upload E2EE public key:', e);
-  }
-
-  return { publicKey: publicKeyB64, privateKey: keyPair.privateKey };
-}
-
-async function fetchUserPublicKey(username) {
-  try {
-    const data = await apiJson(`/api/users?username=${encodeURIComponent(username)}`);
-    if (data?.user?.e2ee_public_key) return data.user.e2ee_public_key;
-    // Try fetching all users and finding the one
-    const allData = await apiJson('/api/users');
-    const user = (allData?.users || []).find(u => u.username === username);
-    return user?.e2ee_public_key || null;
-  } catch {
-    return null;
-  }
-}
-
 // ── Supabase Client ──
 // Uses the runtime configuration supplied by the frontend build or deployment.
 const SUPABASE_URL = window.__BCHAT_CONFIG__?.SUPABASE_URL || '';
@@ -380,8 +132,7 @@ async function syncPendingMessages() {
     const stillPending = [];
     for (const message of pending) {
         try {
-            const { decryptedText, ...networkMessage } = message;
-            const data = await apiJson('/api/messages', { method: 'POST', body: JSON.stringify(networkMessage) });
+            const data = await apiJson('/api/messages', { method: 'POST', body: JSON.stringify(message) });
             const synced = data?.message || message;
             persistMessageToLocalCaches({ ...synced, pending: false });
             removePendingMessage(message.id);
@@ -681,18 +432,6 @@ async function getUsers() {
     }
 }
 
-function preserveLocalDisplayText(serverMessages, cachedMessages) {
-    const localTextById = new Map(
-        cachedMessages
-            .filter((message) => message.id && message.decryptedText)
-            .map((message) => [message.id, message.decryptedText])
-    );
-    return serverMessages.map((message) => localTextById.has(message.id)
-        ? { ...message, decryptedText: localTextById.get(message.id) }
-        : message
-    );
-}
-
 async function getMessages(user1, user2) {
     const cacheKey = getConversationKey(user1, user2);
     const cached = JSON.parse(localStorage.getItem(cacheKey) || '[]');
@@ -706,8 +445,7 @@ async function getMessages(user1, user2) {
 
     try {
         const data = await apiJson(`/api/messages?user1=${encodeURIComponent(user1)}&user2=${encodeURIComponent(user2)}`);
-        const serverMessages = preserveLocalDisplayText(data?.messages || [], cached);
-        const msgs = mergeConversationMessages(serverMessages, pending);
+        const msgs = mergeConversationMessages(data?.messages || [], pending);
         localStorage.setItem(cacheKey, JSON.stringify(msgs));
         return msgs;
     } catch (err) {
@@ -728,8 +466,7 @@ async function getConversationMessages(username) {
 
     try {
         const data = await apiJson(`/api/conversations?username=${encodeURIComponent(username)}`);
-        const serverMessages = preserveLocalDisplayText(data?.messages || [], cached);
-        const msgs = mergeConversationMessages(serverMessages, pending);
+        const msgs = mergeConversationMessages(data?.messages || [], pending);
         localStorage.setItem('bchat_all_msgs_cache', JSON.stringify(msgs));
         return msgs;
     } catch (err) {
@@ -855,7 +592,7 @@ function showChatActionsMenu(x, y) {
     renderChatActionsMenu();
     menu.classList.remove('hidden');
     menu.style.left = Math.min(x, window.innerWidth - 200) + 'px';
-    menu.style.top = Math.min(y, window.innerHeight - 140) + 'px';
+    menu.style.top = Math.max(8, Math.min(y, window.innerHeight - 260)) + 'px';
 }
 function hideChatActionsMenu() {
     $('chat-actions-menu')?.classList.add('hidden');
@@ -1016,7 +753,6 @@ $('security-challenge-submit').addEventListener('click', async () => {
         currentUser = data.user;
         setCurrentUser(currentUser);
         setStoredToken(data.token);
-        try { await ensureE2EEKeys(username, password); } catch(e) { console.warn('E2EE init on login:', e); }
         if (currentUser.role === 'admin') {
             await handleAdminRedirect($('login-error'));
             return;
@@ -1187,7 +923,6 @@ $('login-form').addEventListener('submit', async (e) => {
             setCurrentUser(currentUser);
             setStoredToken(data.token);
             $('login-form').reset();
-            try { await ensureE2EEKeys(username, password); } catch(e) { console.warn('E2EE init on login:', e); }
             if (currentUser.role === 'admin') {
                 await handleAdminRedirect(error);
                 return;
@@ -1250,7 +985,6 @@ $('login-form').addEventListener('submit', async (e) => {
                         lastSeen: new Date().toISOString(),
                         bio: resolvedProfile?.bio || '',
                         createdAt: resolvedProfile?.created_at || new Date().toISOString(),
-                        e2ee_public_key: resolvedProfile?.e2ee_public_key || null
                     };
 
                     error.textContent = '';
@@ -1258,7 +992,6 @@ $('login-form').addEventListener('submit', async (e) => {
                     setCurrentUser(currentUser);
                     setStoredToken(signInData.session?.access_token || '');
                     $('login-form').reset();
-                    try { await ensureE2EEKeys(username, password); } catch(e) { console.warn('E2EE init on login:', e); }
                     if (currentUser.role === 'admin') {
                         await handleAdminRedirect(error);
                         return;
@@ -1463,7 +1196,6 @@ $('signup-form').addEventListener('submit', async (e) => {
         currentUser = data.user;
         setCurrentUser(currentUser);
         setStoredToken(data.token);
-        try { await ensureE2EEKeys(username, startPassword); } catch(e) { console.warn('E2EE init on signup:', e); }
         localStorage.setItem('bchat_show_welcome', '1');
         enterApp();
     } catch (err) {
@@ -2012,42 +1744,7 @@ async function renderMessages() {
     }
     prevMsgCount = msgs.length;
 
-    // ═══ E2EE: Attempt to decrypt incoming messages ═══
-    const decryptedMsgs = [];
-    for (const msg of msgs) {
-        let processed = { ...msg };
-        // Try to decrypt text messages that come to us
-        if (msg.sender !== currentUser.username && msg.type === 'text' && msg.text) {
-            try {
-                const parsed = JSON.parse(msg.text);
-                if (parsed && parsed._e2ee && _e2eePrivateKey) {
-                    const decrypted = await e2eeDecrypt(parsed, _e2eePrivateKey);
-                    if (decrypted) {
-                        processed.decryptedText = decrypted;
-                    }
-                }
-            } catch (e) { /* not encrypted */ }
-        }
-        // Try to decrypt photo messages
-        if (msg.sender !== currentUser.username && msg.type === 'photo' && msg.photo) {
-            try {
-                const parsed = JSON.parse(msg.photo);
-                if (parsed && parsed._e2ee && _e2eePrivateKey) {
-                    const decrypted = await e2eeDecryptBinary(parsed, _e2eePrivateKey);
-                    if (decrypted) {
-                        processed.decryptedPhoto = decrypted;
-                    }
-                }
-            } catch (e) { /* not encrypted */ }
-        }
-        decryptedMsgs.push(processed);
-    }
-
-    // Show E2EE indicator in chat header
-    const e2eeBadge = $('e2ee-badge');
-    if (e2eeBadge) {
-        e2eeBadge.classList.remove('hidden');
-    }
+    const decryptedMsgs = msgs;
 
     const starred = getStarred();
     const otherReadCounts = getReadCounts();
@@ -2112,8 +1809,7 @@ async function renderMessages() {
                 audio.onended = () => { playBtn.innerHTML = '&#9654;'; waveform.classList.remove('playing'); };
             });
         } else {
-            // Use decrypted text if available (E2EE)
-            const displayText = msg.decryptedText || msg.text;
+            const displayText = msg.text;
             div.className = 'message ' + (isSent ? 'sent' : 'received');
             div.innerHTML = `${replyHtml}<div class="msg-text">${formatMsgText(displayText)}</div>${timeHtml}${reactionsHtml}`;
         }
@@ -2194,42 +1890,8 @@ function sendMessage() {
 }
 
 async function addMessageToChat(msg) {
-    // ═══ E2EE: Encrypt the message text before sending ═══
-    let processedMsg = { ...msg };
-    
-    // For text messages, encrypt with the receiver's public key
-    if (msg.type === 'text' && msg.text && msg.receiver) {
-        try {
-            const receiverPubKey = await fetchUserPublicKey(msg.receiver);
-            if (receiverPubKey) {
-                const encrypted = await e2eeEncrypt(msg.text, receiverPubKey);
-                if (encrypted) {
-                    processedMsg.text = JSON.stringify({ ...encrypted, _e2ee: true });
-                }
-            }
-        } catch (e) {
-            console.warn('E2EE encryption failed for text, sending plaintext:', e);
-        }
-    }
-    
-    // For photo messages, encrypt the binary data
-    if (msg.type === 'photo' && msg.photo && msg.receiver) {
-        try {
-            const receiverPubKey = await fetchUserPublicKey(msg.receiver);
-            if (receiverPubKey) {
-                const encrypted = await e2eeEncryptBinary(msg.photo, receiverPubKey);
-                if (encrypted) {
-                    processedMsg.photo = JSON.stringify({ ...encrypted, _e2ee: true });
-                }
-            }
-        } catch (e) {
-            console.warn('E2EE encryption failed for photo:', e);
-        }
-    }
-    
     const entry = persistMessageToLocalCaches({
-        ...processedMsg,
-        decryptedText: msg.type === 'text' ? msg.text : undefined,
+        ...msg,
         id: msg.id || `local_${Date.now()}_${Math.random().toString(36).slice(2)}`,
         pending: true,
         created_at: msg.created_at || new Date().toISOString()
@@ -2244,8 +1906,7 @@ async function addMessageToChat(msg) {
     }
 
     try {
-        const { decryptedText, ...networkEntry } = entry;
-        const data = await apiJson('/api/messages', { method: 'POST', body: JSON.stringify(networkEntry) });
+        const data = await apiJson('/api/messages', { method: 'POST', body: JSON.stringify(entry) });
         const synced = data?.message || entry;
         persistMessageToLocalCaches({ ...synced, pending: false });
         removePendingMessage(entry.id);
