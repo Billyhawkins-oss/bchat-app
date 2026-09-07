@@ -23,6 +23,8 @@ export const config = {
   supabaseServiceRoleKey: getEnv('SUPABASE_SERVICE_ROLE_KEY'),
   adminUsername: getEnv('ADMIN_USERNAME') || 'admin821',
   adminPassword: getEnv('ADMIN_PASSWORD'),
+  geminiApiKey: getEnv('GEMINI_API_KEY'),
+  aiModel: getEnv('AI_MODEL') || 'openai',
   allowedOrigins: parseOrigins(getEnv('ALLOWED_ORIGINS') || 'http://localhost:3000,http://127.0.0.1:3000'),
   frontendOrigin: getEnv('FRONTEND_ORIGIN') || ''
 };

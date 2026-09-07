@@ -399,21 +399,220 @@ app.post('/api/notifications', verifyToken, asyncHandler(async (req, res) => {
   res.status(201).json({ notification: saved });
 }));
 
+// ═══════════════════════════════════════════════════════════
+// REAL-TIME CALL SIGNALING (in-memory, HTTP-polling based)
+// WebRTC needs a signaling channel to exchange SDP offers/answers
+// and ICE candidates. This backend keeps a lightweight per-call
+// store the two browser peers poll — no WebSocket needed.
+// Calls are ephemeral and dropped if the backend restarts.
+// ═══════════════════════════════════════════════════════════
+const activeCalls = new Map();
+
+// Periodic cleanup of stale calls (ringing too long / ended)
+setInterval(() => {
+  const now = Date.now();
+  for (const [id, c] of activeCalls) {
+    if (c.state === 'ended' && now - (c.endedAt || 0) > 30000) activeCalls.delete(id);
+    else if (c.state === 'ringing' && now - (c.createdAt || 0) > 120000) activeCalls.delete(id);
+    else if (c.state === 'ongoing' && now - (c.createdAt || 0) > 3 * 3600000) activeCalls.delete(id);
+  }
+}, 30000);
+
+// Current user's active calls (only calls they are a participant in)
+app.get('/api/calls', verifyToken, asyncHandler(async (req, res) => {
+  const me = req.user.username;
+  const calls = [...activeCalls.values()]
+    .filter((c) => (c.from === me || c.to === me) && c.state !== 'ended')
+    .map((c) => {
+      const isCaller = c.from === me;
+      const isCallee = c.to === me;
+      return {
+        id: c.id,
+        from: c.from,
+        to: c.to,
+        type: c.type,
+        state: c.state,
+        hasOffer: !!c.offer,
+        hasAnswer: !!c.answer,
+        // Only expose SDP to the party that needs it (callee gets the offer,
+        // caller gets the answer). Keeps call data private to participants.
+        offer: isCallee ? c.offer : undefined,
+        answer: isCaller && c.answer ? c.answer : undefined,
+        ice: (c.ice || []).filter((i) => i.from !== me).map((i) => i.candidate)
+      };
+    });
+  res.json({ calls });
+}));
+
+// Start a call (caller side)
+app.post('/api/calls', verifyToken, asyncHandler(async (req, res) => {
+  const { to, type } = req.body || {};
+  if (!to) return res.status(400).json({ error: 'to is required' });
+  if (type !== 'voice' && type !== 'video') return res.status(400).json({ error: 'type must be voice or video' });
+  const me = req.user.username;
+  if (to === me) return res.status(400).json({ error: 'You cannot call yourself' });
+
+  // Cancel any existing call between this pair
+  for (const [id, c] of activeCalls) {
+    if (c.state !== 'ended' && ((c.from === me && c.to === to) || (c.from === to && c.to === me))) {
+      activeCalls.delete(id);
+    }
+  }
+
+  const id = 'call_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+  activeCalls.set(id, {
+    id,
+    from: me,
+    to,
+    type,
+    state: 'ringing',
+    offer: null,
+    answer: null,
+    ice: [],
+    createdAt: Date.now()
+  });
+  res.status(201).json({ call: { id, state: 'ringing' } });
+}));
+
+// Caller posts their SDP offer
+app.post('/api/calls/:id/offer', verifyToken, asyncHandler(async (req, res) => {
+  const call = activeCalls.get(req.params.id);
+  if (!call || call.state === 'ended') return res.status(404).json({ error: 'Call not found' });
+  if (call.from !== req.user.username) return res.status(403).json({ error: 'Only the caller can send the offer' });
+  const { offer } = req.body || {};
+  if (!offer) return res.status(400).json({ error: 'offer is required' });
+  call.offer = offer;
+  res.json({ ok: true });
+}));
+
+// Callee accepts and posts their SDP answer
+app.post('/api/calls/:id/answer', verifyToken, asyncHandler(async (req, res) => {
+  const call = activeCalls.get(req.params.id);
+  if (!call || call.state === 'ended') return res.status(404).json({ error: 'Call not found' });
+  if (call.to !== req.user.username) return res.status(403).json({ error: 'Only the callee can answer' });
+  const { answer } = req.body || {};
+  if (!answer) return res.status(400).json({ error: 'answer is required' });
+  call.answer = answer;
+  call.state = 'ongoing';
+  res.json({ ok: true });
+}));
+
+// Callee declines
+app.post('/api/calls/:id/decline', verifyToken, asyncHandler(async (req, res) => {
+  const call = activeCalls.get(req.params.id);
+  if (!call || call.state === 'ended') return res.status(404).json({ error: 'Call not found' });
+  if (call.to !== req.user.username) return res.status(403).json({ error: 'Only the callee can decline' });
+  call.state = 'declined';
+  call.endedAt = Date.now();
+  setTimeout(() => activeCalls.delete(call.id), 30000);
+  res.json({ ok: true });
+}));
+
+// Either party hangs up
+app.post('/api/calls/:id/hangup', verifyToken, asyncHandler(async (req, res) => {
+  const call = activeCalls.get(req.params.id);
+  if (!call || call.state === 'ended') return res.status(404).json({ error: 'Call not found' });
+  if (call.from !== req.user.username && call.to !== req.user.username) {
+    return res.status(403).json({ error: 'Not part of this call' });
+  }
+  call.state = 'ended';
+  call.endedAt = Date.now();
+  setTimeout(() => activeCalls.delete(call.id), 30000);
+  res.json({ ok: true });
+}));
+
+// Relay an ICE candidate between peers
+app.post('/api/calls/:id/ice', verifyToken, asyncHandler(async (req, res) => {
+  const call = activeCalls.get(req.params.id);
+  if (!call || call.state === 'ended') return res.status(404).json({ error: 'Call not found' });
+  if (call.from !== req.user.username && call.to !== req.user.username) {
+    return res.status(403).json({ error: 'Not part of this call' });
+  }
+  const { candidate } = req.body || {};
+  if (!candidate) return res.status(400).json({ error: 'candidate is required' });
+  call.ice.push({ from: req.user.username, candidate });
+  res.json({ ok: true });
+}));
+
+const DEFAULT_AI_SYSTEM_PROMPT = {
+  role: 'system',
+  content: 'You are B AI, a warm, friendly assistant built into the B CHAT messaging app by Billy Hawkins. Keep replies helpful, natural, and concise.'
+};
+
+function normalizeAiMessages(messages) {
+  return (Array.isArray(messages) ? messages : [])
+    .map((m) => {
+      let role = 'user';
+      if (m && (m.role === 'system')) role = 'system';
+      else if (m && (m.role === 'assistant' || m.role === 'model')) role = 'assistant';
+      let content = '';
+      if (m && typeof m.content === 'string') content = m.content;
+      else if (m && m.content != null) content = JSON.stringify(m.content);
+      return { role, content: String(content).trim() };
+    })
+    .filter((m) => m.content.length > 0);
+}
+
+// Keyless Pollinations text API (OpenAI-compatible-ish chat completion)
+async function callPollinations(messages) {
+  const body = {
+    model: config.aiModel,
+    seed: Math.floor(Math.random() * 1e6),
+    messages
+  };
+  const res = await fetch('https://text.pollinations.ai/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error('Pollinations upstream status ' + res.status);
+  const raw = await res.text();
+  try {
+    const json = JSON.parse(raw);
+    const content = json?.choices?.[0]?.message?.content ?? json?.output ?? json?.response;
+    if (typeof content === 'string' && content.trim()) return content.trim();
+  } catch (_) { /* not JSON */ }
+  if (raw.trim()) return raw.trim();
+  throw new Error('Empty AI response from Pollinations');
+}
+
+// Optional Google Gemini (only used when GEMINI_API_KEY is configured)
+async function callGemini(messages) {
+  const model = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+  const contents = messages.map((m) => ({
+    role: m.role === 'assistant' ? 'model' : m.role,
+    parts: [{ text: m.content }]
+  }));
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(config.geminiApiKey)}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents })
+    }
+  );
+  if (!res.ok) throw new Error('Gemini upstream status ' + res.status);
+  const json = await res.json();
+  const text = (json?.candidates?.[0]?.content?.parts || []).map((p) => p.text || '').join('').trim();
+  if (!text) throw new Error('Empty Gemini response');
+  return text;
+}
+
 app.post('/api/ai/chat', verifyToken, asyncHandler(async (req, res) => {
-  const { messages = [] } = req.body || {};
-  const last = Array.isArray(messages) ? messages[messages.length - 1]?.content || '' : '';
-  if (!last) return res.status(400).json({ error: 'A message is required' });
-  const lower = String(last).toLowerCase();
-  if (lower.includes('image') || lower.includes('picture') || lower.includes('photo')) {
-    return res.json({ reply: '🎨 I can help generate image prompts, but the actual image rendering is handled by the public image route. I can still help you craft the perfect prompt.' });
+  const messages = normalizeAiMessages(req.body?.messages);
+  if (!messages.length) return res.status(400).json({ error: 'A message is required' });
+
+  const hasSystem = messages.some((m) => m.role === 'system');
+  const final = hasSystem ? messages : [DEFAULT_AI_SYSTEM_PROMPT, ...messages];
+
+  try {
+    const reply = config.geminiApiKey ? await callGemini(final) : await callPollinations(final);
+    return res.json({ reply });
+  } catch (err) {
+    console.error('[AI] upstream error:', err && err.message ? err.message : err);
+    // Return empty reply so the frontend falls back to its built-in offline assistant.
+    return res.json({ reply: '' });
   }
-  if (lower.includes('hello') || lower.includes('hi')) {
-    return res.json({ reply: 'Hello! Your request reached the protected backend safely. I can help with short answers, summaries, or follow-up prompts.' });
-  }
-  if (lower.includes('weather')) {
-    return res.json({ reply: 'I can help with general advice, but I do not have live weather access from this backend.' });
-  }
-  return res.json({ reply: `Secure backend response: ${String(last).slice(0, 180)}` });
 }));
 
 app.use((err, _req, res, next) => {
