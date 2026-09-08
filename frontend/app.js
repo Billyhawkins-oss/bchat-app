@@ -930,6 +930,12 @@ $('login-form').addEventListener('submit', async (e) => {
             enterApp();
             return;
         } catch (backendErr) {
+            if (currentUser?.username === username) {
+                console.error('Login succeeded, but the user dashboard failed to initialize:', backendErr);
+                showScreen(appScreen);
+                error.textContent = 'You are signed in, but the dashboard needs a refresh.';
+                return;
+            }
             console.warn('Backend login failed, trying Supabase fallback:', backendErr);
         }
 
@@ -1234,7 +1240,9 @@ function enterApp() {
     startUsageAnalytics();
     startNotificationPolling();
     syncPendingMessages();
-    $('my-name').textContent = uName(currentUser);
+    const userName = uName(currentUser);
+    const nameEl = $('my-name');
+    if (nameEl) nameEl.textContent = userName;
     const codeEl = $('my-code');
     if (codeEl) codeEl.textContent = currentUser.code ? 'Code: ' + currentUser.code : '';
 
@@ -1243,21 +1251,25 @@ function enterApp() {
     if (adminSection) {
         adminSection.classList.toggle('hidden', currentUser?.role !== 'admin');
     }
-    $('my-avatar').textContent = uName(currentUser).charAt(0).toUpperCase();
+    const avatarEl = $('my-avatar');
+    if (avatarEl) avatarEl.textContent = userName.charAt(0).toUpperCase();
 
-    if (currentUser.avatar) {
-        $('my-avatar-img').src = currentUser.avatar;
-        $('my-avatar-img').classList.remove('hidden');
-    } else {
-        $('my-avatar-img').classList.add('hidden');
+    const avatarImage = $('my-avatar-img');
+    if (avatarImage) {
+        if (currentUser.avatar) {
+            avatarImage.src = currentUser.avatar;
+            avatarImage.classList.remove('hidden');
+        } else {
+            avatarImage.classList.add('hidden');
+        }
     }
 
     activeChatWith = null;
-    chatView.classList.add('hidden');
-    chatWelcome.classList.remove('hidden');
-    sidebar.classList.remove('chat-open');
-    chatArea.classList.add('chat-closed');
-    emojiPicker.classList.add('hidden');
+    chatView?.classList.add('hidden');
+    chatWelcome?.classList.remove('hidden');
+    sidebar?.classList.remove('chat-open');
+    chatArea?.classList.add('chat-closed');
+    emojiPicker?.classList.add('hidden');
     renderChatList();
     setupRealtime();
     startIncomingCallListener();

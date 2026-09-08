@@ -6193,4 +6193,61 @@ body.light #signup-screen .security-question input::placeholder { color: #8991af
     #login-screen .auth-form-wrap,
     #signup-screen .auth-form { margin-inline: 20px; }
 }
->>>>>>> 8e5a07e (Update frontend styling and service worker)
+
+/* Login refresh: a calm brand panel with a focused, compact form. */
+#login-screen .auth-container {
+    width: min(760px, 94vw);
+    grid-template-columns: 220px minmax(300px, 1fr);
+    border-radius: 22px;
+}
+
+#login-screen .auth-container::before {
+    content: "B CHAT\A Private conversations, made simple.";
+    display: flex;
+    align-items: flex-end;
+    padding: 30px 24px;
+    color: rgba(230, 236, 255, .82);
+    font-size: .82rem;
+    font-weight: 600;
+    line-height: 1.55;
+    letter-spacing: .02em;
+    white-space: pre-line;
+}
+
+#login-screen .auth-container::before::first-line {
+    color: #fff;
+}
+
+#login-screen .auth-form-wrap {
+    margin: 0 38px 30px;
+}
+
+#login-screen .auth-features {
+    margin-bottom: 16px;
+}
+
+#login-screen .auth-form {
+    gap: 10px;
+}
+
+#login-screen .form-group input {
+    min-height: 46px;
+    border-radius: 11px;
+}
+
+#login-screen .btn-auth {
+    width: min(100%, 190px);
+    min-height: 44px;
+    padding: 10px 18px;
+    border-radius: 10px;
+}
+
+#login-screen .auth-switch {
+    margin-top: 8px;
+}
+
+@media (max-width: 760px) {
+    #login-screen .auth-container { width: min(440px, 100%); }
+    #login-screen .auth-container::before { display: none; }
+    #login-screen .auth-form-wrap { margin-inline: 20px; }
+}
