@@ -5850,9 +5850,6 @@ body.light .chat-list-item.active { background: linear-gradient(100deg, rgba(108
 
 /* Ensure the modern sent/received bubbles always win over legacy message colors */
 #chat-view .message.sent { background: linear-gradient(135deg, var(--primary), #7a5cff 70%, #55c7bd); color: #fff; }
-<<<<<<< HEAD
-#chat-view .message.received { background: var(--received); color: var(--text); }
-=======
 #chat-view .message.received { background: var(--received); color: var(--text); }
 
 /* ================================================================
@@ -5982,6 +5979,17 @@ body.light .chat-list-item.active { background: linear-gradient(100deg, rgba(108
 
 #login-screen .auth-form,
 #signup-screen .auth-form { gap: 12px; }
+
+#login-screen .auth-form {
+    width: min(100%, 360px);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#login-screen .btn-auth {
+    width: min(100%, 220px);
+    align-self: center;
+}
 
 #login-screen .form-group,
 #signup-screen .form-group,
