@@ -50,20 +50,218 @@ button,.icon-btn,.bottom-tab,.chat-list-item,.send-btn,.msg-reaction { transitio
 
 /* Auth */
 #login-screen,#signup-screen {
-    background: radial-gradient(900px 600px at 12% 15%, rgba(108,99,255,0.3), transparent 50%),
-                radial-gradient(800px 550px at 88% 20%, rgba(85,199,189,0.2), transparent 50%),
-                linear-gradient(162deg, #070a16, #0d1230 55%, #0a1a24);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background:
+        radial-gradient(1100px 620px at 50% 18%, rgba(85, 120, 255, 0.18), transparent 60%),
+        radial-gradient(900px 500px at 95% 50%, rgba(134, 98, 255, 0.28), transparent 48%),
+        linear-gradient(180deg, #040915 0%, #0a1126 42%, #0a1231 100%);
+    padding: 32px 20px;
 }
-.auth-form-wrap { background: linear-gradient(180deg, rgba(24,30,58,0.92), rgba(16,21,44,0.95)); border:1px solid var(--border); border-radius:22px; padding:18px; backdrop-filter: blur(10px); box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
-body.light .auth-form-wrap { background: linear-gradient(180deg, #fff,#f2f4ff); }
-.auth-logo { border-radius:24px; box-shadow: 0 0 0 6px rgba(108,99,255,0.12); }
-.auth-title { letter-spacing:4px; background: linear-gradient(90deg, var(--text),#cdd5ff 60%, #9ee8dc); background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
-.auth-feature { background: rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:999px; padding:6px 12px; font-size:0.78rem; color: var(--text-muted); }
-.btn-auth { color:#fff; background: linear-gradient(135deg, var(--primary),#8b83ff 60%, #55c7bd); border-radius:12px; box-shadow: 0 8px 22px rgba(108,99,255,0.4); }
-.btn-auth-secondary { background: rgba(255,255,255,0.08); color: var(--text); box-shadow: none; }
-.form-group input { background: rgba(255,255,255,0.06); border:1px solid var(--border); border-radius:12px; padding:12px 14px; color: var(--text); }
-.form-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(108,99,255,0.2); }
+#login-screen .auth-container,
+#signup-screen .auth-container {
+    width: min(760px, calc(100vw - 80px));
+    max-width: 760px;
+    padding: 26px 36px 32px;
+    border-radius: 32px;
+    background: linear-gradient(180deg, rgba(18, 23, 46, 0.92), rgba(11, 16, 31, 0.96));
+    border: 1px solid rgba(139, 149, 255, 0.18);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 24px 60px rgba(2, 5, 18, 0.55);
+}
+#login-screen .auth-container {
+    padding-top: 18px;
+}
+.auth-theme-toggle {
+    position: absolute;
+    top: 28px;
+    right: min(5vw, 56px);
+    width: 52px;
+    height: 52px;
+    border: none;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #f8d174, #eaa812);
+    box-shadow: 0 10px 25px rgba(240, 179, 52, 0.28);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+.auth-logo {
+    display: block;
+    width: 62px;
+    height: 62px;
+    border-radius: 20px;
+    margin: 8px auto 14px;
+    box-shadow: 0 0 0 7px rgba(124, 103, 255, 0.14), 0 10px 24px rgba(79, 83, 255, 0.34);
+}
+.auth-title {
+    margin: 0;
+    text-align: center;
+    font-size: clamp(2.6rem, 5vw, 4.3rem);
+    line-height: 1.1;
+    letter-spacing: 0.08em;
+    font-weight: 900;
+    background: linear-gradient(90deg, #f5f7ff, #dfe7ff 48%, #a5e9df 100%);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+.auth-sub {
+    margin: 12px 0 24px;
+    text-align: center;
+    font-size: clamp(1.3rem, 2vw, 2rem);
+    font-weight: 400;
+    color: rgba(231, 236, 255, 0.9);
+}
+.auth-features {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+    margin: 0 auto 26px;
+    max-width: 580px;
+}
+.auth-feature {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-width: 128px;
+    padding: 0.9rem 1.2rem;
+    border-radius: 999px;
+    border: 1px solid rgba(151, 164, 255, 0.12);
+    background: rgba(255,255,255,0.04);
+    color: rgba(236, 242, 255, 0.93);
+    font-size: 1.02rem;
+    font-weight: 700;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.auth-feature i {
+    font-size: 1.1rem;
+    opacity: 0.95;
+}
+.auth-form-wrap {
+    width: min(100%, 520px);
+    margin: 0 auto;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+.auth-form,
+#signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+.form-group {
+    position: relative;
+}
+.form-group input {
+    width: 100%;
+    height: 72px;
+    padding: 0 18px;
+    border: 1px solid rgba(163, 173, 255, 0.18);
+    border-radius: 18px;
+    background: rgba(77, 88, 128, 0.18);
+    color: rgba(235, 239, 255, 0.95);
+    font-size: 1.08rem;
+    box-sizing: border-box;
+}
+.form-group input::placeholder {
+    color: rgba(214,220,255,0.7);
+}
+.form-group input:focus {
+    border-color: rgba(140, 118, 255, 0.9);
+    box-shadow: 0 0 0 4px rgba(125, 112, 255, 0.15);
+    outline: none;
+}
+.pw-field input {
+    padding-right: 52px;
+}
+.pw-toggle {
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,0.72);
+    font-size: 1.15rem;
+    cursor: pointer;
+}
+.btn-auth {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 72px;
+    border: none;
+    border-radius: 18px;
+    background: linear-gradient(90deg, #7a65ff 0%, #8c85ff 38%, #5bc1d8 100%);
+    color: #fff;
+    font-size: clamp(1.3rem, 2vw, 2.2rem);
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    box-shadow: 0 12px 28px rgba(102, 89, 255, 0.38);
+    cursor: pointer;
+}
+.btn-auth-secondary {
+    background: rgba(255,255,255,0.04);
+    color: #edf2ff;
+    box-shadow: none;
+}
+.auth-error {
+    min-height: 20px;
+    margin: 0;
+    color: #ffafb6;
+    font-size: 0.9rem;
+    text-align: center;
+}
+.auth-switch {
+    margin: 8px 0 0;
+    text-align: center;
+    font-size: 1.2rem;
+    color: rgba(231,236,255,0.92);
+}
+.auth-switch a {
+    color: #9bc7ff;
+    text-decoration: none;
+    font-weight: 700;
+}
 ::selection { background: rgba(108,99,255,0.35); color: #fff; }
+body.light #login-screen,
+body.light #signup-screen {
+    background: linear-gradient(180deg, #eef3ff 0%, #dfe8ff 100%);
+}
+body.light #login-screen .auth-container,
+body.light #signup-screen .auth-container {
+    background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(235,240,255,0.96));
+    border-color: rgba(94, 88, 160, 0.14);
+    box-shadow: 0 24px 50px rgba(53, 60, 95, 0.12);
+}
+body.light .auth-sub,
+body.light .auth-feature,
+body.light .auth-switch,
+body.light .form-group input,
+body.light .form-group input::placeholder,
+body.light .auth-switch a {
+    color: #1d2343;
+}
+body.light .auth-feature {
+    background: rgba(95,110,176,0.06);
+}
+body.light .form-group input {
+    background: rgba(110, 120, 176, 0.06);
+}
+body.light .auth-title {
+    background: linear-gradient(90deg, #1a1f3a, #4a54bf 48%, #00a7a7 100%);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
 
 /* App shell */
 #app-screen { background: radial-gradient(1000px 650px at 0% -10%, rgba(108,99,255,0.14), transparent 55%), radial-gradient(800px 550px at 100% 110%, rgba(85,199,189,0.09), transparent 55%), var(--bg); }
@@ -167,3 +365,188 @@ body.light .message-input { background: rgba(250,251,255,0.97); }
 .login-card-in,.splash-dots span { animation: bchatFadeUp 0.4s ease;; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation:none !important; transition:none !important; } }
 .chat-time { color: var(--text-dim); }
+/* ═══════════════════════════════════════════
+   BChat v3 — Desktop App Shell (left nav rail)
+   Structural layer: the app gains a modern left
+   navigation column. Tab buttons reuse the
+   existing .bottom-tab / data-tab hook so the
+   existing activateTab() drives them unchanged.
+   ═══════════════════════════════════════════ */
+
+/* Base app shell */
+#app-screen { overflow: hidden; }
+
+/* ── Nav rail (desktop default) ── */
+.app-nav {
+    display: flex;
+    flex-direction: column;
+    width: 232px;
+    min-width: 232px;
+    height: 100%;
+    background: linear-gradient(180deg, rgba(11,14,30,0.97), rgba(13,17,33,0.96));
+    border-right: 1px solid var(--border);
+    backdrop-filter: blur(14px);
+    padding: 14px 12px;
+    gap: 6px;
+    z-index: 6;
+}
+body.light .app-nav { background: linear-gradient(180deg, rgba(250,251,255,0.98), rgba(238,240,251,0.97)); }
+
+.app-nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px 16px;
+}
+.app-nav-brand .sidebar-logo { width: 40px; height: 40px; border-radius: 12px; }
+.app-nav-brand-label {
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    background: linear-gradient(90deg, var(--text), #cdd5ff 60%, #9ee8dc);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    white-space: nowrap;
+}
+
+.app-nav-items,
+.app-nav-foot { display: flex; flex-direction: column; gap: 5px; }
+.app-nav-items { flex: 1; overflow-y: auto; }
+.app-nav-foot { border-top: 1px solid var(--border); padding-top: 10px; margin-top: 6px; }
+.app-nav-user { padding-top: 6px; border-top: 1px solid var(--border); margin-top: 6px; }
+
+.nav-tab {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 14px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    border-radius: 14px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: left;
+}
+.nav-tab:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+.nav-tab .nav-ic { width: 22px; text-align: center; font-size: 1.05rem; flex: none; }
+.nav-tab .nav-label { white-space: nowrap; }
+.nav-tab.active {
+    color: #fff;
+    background: linear-gradient(100deg, rgba(108,99,255,0.32), rgba(85,199,189,0.12));
+    box-shadow: inset 3px 0 0 var(--primary-light);
+}
+.nav-tab.active .nav-ic { color: var(--primary-light); }
+
+/* Reused action buttons (relocated by ID into the rail) */
+.app-nav-foot .nav-btn, .app-nav-user .nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 10px 14px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: left;
+}
+.app-nav-foot .nav-btn i, .app-nav-user .nav-btn i { width: 22px; text-align: center; flex: none; }
+.app-nav-foot .nav-btn:hover, .app-nav-user .nav-btn:hover { background: rgba(255,255,255,0.06); color: #fff; }
+.app-nav-user .nav-logout { color: #ff7a87; }
+body.light .app-nav-foot .nav-btn:hover, body.light .app-nav-user .nav-btn:hover { background: rgba(30,40,100,0.08); color: var(--text); }
+
+/* Hide the legacy header (it held the old top icon actions) on desktop */
+@media (min-width: 920px) {
+    .sidebar-header { display: none; }
+    .bottom-tabs { display: none; }
+}
+
+/* Tablet: condensed icon-only rail */
+@media (min-width: 700px) and (max-width: 919px) {
+    .app-nav { width: 74px; min-width: 74px; }
+    .app-nav .nav-label, .app-nav-brand-label { display: none; }
+    .app-nav-brand { justify-content: center; padding: 10px 0 14px; }
+    .app-nav-brand .sidebar-logo { width: 34px; height: 34px; }
+    .nav-tab, .app-nav-foot .nav-btn, .app-nav-user .nav-btn { justify-content: center; padding: 12px 0; }
+    .nav-tab .nav-ic, .app-nav-foot .nav-btn i, .app-nav-user .nav-btn i { width: auto; }
+    .app-nav-items { flex: 1; }
+    .bottom-tabs { display: none; }
+}
+
+/* Mobile: hide rail; keep the existing bottom-tabs + stacked nav */
+@media (max-width: 699px) {
+    .app-nav { display: none; }
+    .sidebar-header { display: flex; }
+}
+
+/* Modern conversation welcome screen (replaces legacy pale welcome) */
+#app-screen .chat-welcome {
+    background: radial-gradient(700px 420px at 50% 0%, rgba(108,99,255,0.16), transparent 60%);
+}
+#app-screen .chat-welcome .welcome-logo {
+    width: 92px; height: 92px;
+    border-radius: 26px;
+    box-shadow: 0 0 0 8px rgba(108,99,255,0.12), 0 24px 60px rgba(108,99,255,0.4);
+}
+#app-screen .chat-welcome h2 {
+    font-size: 1.5rem; font-weight: 800; margin: 18px 0 6px;
+    background: linear-gradient(90deg, var(--text), #cdd5ff 55%, #9ee8dc);
+    background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
+}
+#app-screen .chat-welcome p { color: var(--text-muted); font-size: 0.95rem; }
+/* ── Modern polish for list / secondary-screen surfaces ── */
+
+/* Chat list search + toolbar */
+.search-bar { padding: 10px 14px; }
+.search-bar input {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 10px 16px;
+    color: var(--text);
+}
+.search-bar input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(108,99,255,0.18); outline: none; }
+body.light .search-bar input { background: rgba(30,40,100,0.06); color: var(--text); }
+.chat-list-toolbar { padding: 0 14px 6px; }
+.archive-toggle, .chat-list-toolbar button {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 12px;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    cursor: pointer;
+}
+body.light .archive-toggle, body.light .chat-list-toolbar button { background: rgba(30,40,100,0.06); }
+
+/* Section headers inside tab panels */
+.status-header h3 { color: var(--text); }
+
+/* FAB new-chat */
+.fab-new-chat {
+    background: linear-gradient(135deg, var(--primary), #8b83ff 60%, #55c7bd);
+    box-shadow: 0 10px 24px rgba(108,99,255,0.4);
+    border: none;
+    color: #fff;
+}
+
+/* Light-mode app shell: keep it modern, not the old pale gradient */
+body.light #app-screen {
+    background: radial-gradient(900px 620px at 0% -10%, rgba(108,99,255,0.10), transparent 55%),
+                radial-gradient(700px 520px at 100% 110%, rgba(85,199,189,0.08), transparent 55%),
+                #eef0fb;
+}
+body.light .chat-area .message-input,
+body.light .message-input { background: rgba(250,251,255,0.97); }
+body.light .chat-list-item.active { background: linear-gradient(100deg, rgba(108,99,255,0.16), rgba(108,99,255,0.05)); }
+
+/* Ensure the modern sent/received bubbles always win over legacy message colors */
+#chat-view .message.sent { background: linear-gradient(135deg, var(--primary), #7a5cff 70%, #55c7bd); color: #fff; }
+#chat-view .message.received { background: var(--received); color: var(--text); }

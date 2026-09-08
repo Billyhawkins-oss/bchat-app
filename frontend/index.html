@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>B CHAT</title>
-    <link rel="stylesheet" href="go.css">
-    <link rel="stylesheet" href="go-v2.css">
     <link rel="stylesheet" href="bchat.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="icon" href="logo.svg" type="image/svg+xml">
@@ -221,17 +219,35 @@
     <!-- ══════ MAIN APP ══════ -->
     <div id="app-screen" class="screen">
 
+        <!-- ── App Navigation Rail (desktop left nav; hidden on mobile, which uses .bottom-tabs) ── -->
+        <nav class="app-nav" aria-label="Main navigation">
+            <div class="app-nav-brand">
+                <img src="logo.svg" alt="B CHAT" class="sidebar-logo">
+                <span class="app-nav-brand-label">B&nbsp;CHAT</span>
+            </div>
+            <div class="app-nav-items">
+                <button class="bottom-tab nav-tab active" data-tab="tab-chats" title="Chats"><i class="nav-ic fa-solid fa-comments" aria-hidden="true"></i><span class="nav-label">Chats</span></button>
+                <button class="bottom-tab nav-tab" data-tab="tab-status" title="Status"><i class="nav-ic fa-solid fa-circle-dot" aria-hidden="true"></i><span class="nav-label">Status</span></button>
+                <button class="bottom-tab nav-tab" data-tab="tab-ads" title="Ads"><i class="nav-ic fa-solid fa-bullhorn" aria-hidden="true"></i><span class="nav-label">Ads</span></button>
+                <button class="bottom-tab nav-tab" data-tab="tab-ai" title="AI Assistant"><i class="nav-ic fa-solid fa-robot" aria-hidden="true"></i><span class="nav-label">AI&nbsp;Assistant</span></button>
+                <button class="bottom-tab nav-tab" data-tab="tab-calls" title="Calls"><i class="nav-ic fa-solid fa-phone" aria-hidden="true"></i><span class="nav-label">Calls</span></button>
+            </div>
+            <div class="app-nav-foot">
+                <button id="btn-guide" class="icon-btn nav-btn" title="Guide"><i class="fa-solid fa-book-open" aria-hidden="true"></i><span class="nav-label">Guide</span></button>
+                <button id="btn-starred" class="icon-btn nav-btn" title="Starred Messages"><i class="fa-solid fa-star" aria-hidden="true"></i><span class="nav-label">Starred</span></button>
+                <button id="btn-contact-admin" class="icon-btn nav-btn" title="Contact Admin"><i class="fa-solid fa-headset" aria-hidden="true"></i><span class="nav-label">Support</span></button>
+                <button id="btn-settings" class="icon-btn nav-btn" title="Settings"><i class="fa-solid fa-gear" aria-hidden="true"></i><span class="nav-label">Settings</span></button>
+            </div>
+            <div class="app-nav-user">
+                <button id="btn-logout" class="icon-btn nav-btn nav-logout" title="Logout"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span class="nav-label">Logout</span></button>
+            </div>
+        </nav>
+
         <!-- ── Sidebar / Chat List ── -->
         <div id="sidebar" class="sidebar">
             <div class="sidebar-header">
                 <img src="logo.svg" alt="B CHAT" class="sidebar-logo">
                 <h2>B CHAT</h2>
-                <div class="sidebar-actions">
-                    <button id="btn-guide" class="icon-btn" title="Guide"><i class="fa-solid fa-book-open" aria-hidden="true"></i></button>
-                    <button id="btn-starred" class="icon-btn" title="Starred Messages"><i class="fa-solid fa-star" aria-hidden="true"></i></button>
-                    <button id="btn-contact-admin" class="icon-btn" title="Contact Admin" style="color:var(--amber)"><i class="fa-solid fa-bullhorn" aria-hidden="true"></i></button>
-                    <button id="btn-logout" class="icon-btn" title="Logout"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i></button>
-                </div>
             </div>
 
             <div id="user-bar" class="user-bar" title="Tap to open gallery &amp; change photo">
@@ -243,7 +259,6 @@
                 <span id="my-name">User</span>
                 <span id="my-code" class="my-code" title="Your B CHAT code — share it so friends can add you"></span>
                 <span class="online-tag">online</span>
-                <button id="btn-settings" class="icon-btn" title="Settings" style="margin-left:auto;width:30px;height:30px;">&#9881;</button>
             </div>
 
             <!-- ── Tab Content Area ── -->
