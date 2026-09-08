@@ -170,7 +170,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .tb-search input{width:100%;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:8px 12px 8px 34px;color:var(--text);outline:none}
 .tb-search input:focus{border-color:var(--brand)}
 .seg{display:flex;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:3px;gap:2px}
-.seg button{padding:6px 12px;border-radius:7px;font-size:12.5px;font-weight:500;color:var(--muted)}
+.seg button{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:7px;font-size:12.5px;font-weight:500;color:var(--muted)}
+.seg button svg{width:13px;height:13px;opacity:.78}
 .seg button.active{background:var(--brand-soft);color:var(--brand);font-weight:600}
 .btn{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:10px;font-weight:600;font-size:13px;background:var(--panel);border:1px solid var(--border);color:var(--text);transition:.15s}
 .btn:hover{border-color:var(--border-2);background:var(--panel-2)}
@@ -542,7 +543,7 @@ tbody tr:hover,.msg-item:hover{background:var(--panel-2)}
   <!-- Main -->
   <main class="main">
     <header class="topbar">
-      <button class="icon-btn menu-toggle" id="menu-toggle" aria-label="Menu"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg></button>
+      <button class="icon-btn menu-toggle" id="menu-toggle" aria-label="Open navigation menu" title="Open navigation menu"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg></button>
       <div>
         <div class="page-title" id="pg-title">Overview</div>
         <div class="page-sub" id="pg-sub">Real-time snapshot of your community</div>
@@ -554,9 +555,9 @@ tbody tr:hover,.msg-item:hover{background:var(--panel-2)}
       </div>
       <div class="top-actions">
         <div class="live" id="live-badge"><span class="dot"></span><span id="live-txt">Live</span></div>
-        <button class="icon-btn" id="btn-refresh" title="Refresh data"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></button>
-        <button class="icon-btn" id="btn-theme" title="Toggle theme"><svg id="theme-ic" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
-        <button class="icon-btn" id="btn-logout" title="Sign out"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg></button>
+        <button class="icon-btn" id="btn-refresh" title="Refresh data" aria-label="Refresh data"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></button>
+        <button class="icon-btn" id="btn-theme" title="Toggle theme" aria-label="Toggle theme"><svg id="theme-ic" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+        <button class="icon-btn" id="btn-logout" title="Sign out" aria-label="Sign out"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg></button>
       </div>
     </header>
 
@@ -620,9 +621,9 @@ tbody tr:hover,.msg-item:hover{background:var(--panel-2)}
         <div class="toolbar">
           <div class="tb-search"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input id="users-search" placeholder="Search name, username or code…"></div>
           <div class="seg" id="users-filter">
-            <button class="active" data-f="all">All</button>
-            <button data-f="online">Online</button>
-            <button data-f="offline">Offline</button>
+            <button class="active" data-f="all"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>All</button>
+            <button data-f="online"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>Online</button>
+            <button data-f="offline"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke-dasharray="3 3"/></svg>Offline</button>
           </div>
           <button class="btn" id="users-export" style="margin-left:auto"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Export CSV</button>
         </div>
@@ -650,10 +651,10 @@ tbody tr:hover,.msg-item:hover{background:var(--panel-2)}
         <div class="toolbar">
           <div class="tb-search"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input id="msgs-search" placeholder="Search message text or participants…"></div>
           <div class="seg" id="msgs-filter">
-            <button class="active" data-f="all">All</button>
-            <button data-f="text">Text</button>
-            <button data-f="photo">Photo</button>
-            <button data-f="voice">Voice</button>
+            <button class="active" data-f="all"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>All</button>
+            <button data-f="text"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 5h16v11H7l-3 3V5z"/></svg>Text</button>
+            <button data-f="photo"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="m21 15-4-4-7 7"/></svg>Photo</button>
+            <button data-f="voice"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/></svg>Voice</button>
           </div>
           <button class="btn" id="msgs-export" style="margin-left:auto"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Export CSV</button>
         </div>
@@ -776,8 +777,8 @@ tbody tr:hover,.msg-item:hover{background:var(--panel-2)}
             <div class="set-row"><div class="lbl"><b>Supabase project</b><span class="kv" id="set-url">–</span></div><span class="chip" id="set-conn">checking…</span></div>
             <div class="set-row"><div class="lbl"><b>Signed in as</b><span id="set-me" class="kv">–</span></div></div>
             <div class="set-row"><div class="lbl"><b>Role</b><span id="set-role" class="kv">admin</span></div></div>
-            <div class="set-row"><div class="lbl"><b>Last synced</b><span id="set-synced" class="kv">–</span></div><button class="btn" id="set-refresh">Refresh now</button></div>
-            <div class="set-row"><div class="lbl"><b>Sign out</b><span>End this admin session</span></div><button class="btn danger" id="set-logout">Sign out</button></div>
+            <div class="set-row"><div class="lbl"><b>Last synced</b><span id="set-synced" class="kv">–</span></div><button class="btn" id="set-refresh"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Refresh now</button></div>
+            <div class="set-row"><div class="lbl"><b>Sign out</b><span>End this admin session</span></div><button class="btn danger" id="set-logout"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg>Sign out</button></div>
           </div>
         </div>
         <div class="panel" style="margin-top:14px">
